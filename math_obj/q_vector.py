@@ -1,19 +1,13 @@
 import numpy as np
 
-class Q_v_state(np.ndarray):
+class Q_v_state():
     """
     Этот класс позволяет создавать и модифицировать вектор состояния q
     """
-    def __new__(cls, input_array, *args, **kwargs):
-        # Преобразуем входной массив в экземпляр MyArray
-        obj = np.asarray(input_array).view(cls)
-        return obj
-    
     def __init__(self, matrix,  start_param, *args, **kwargs):
         """
         Инициализация вектора состояния q.
         """
-        super().__init__(*args, **kwargs)
         self.matrix = matrix
         self.init_data = start_param
 
@@ -78,26 +72,22 @@ class Q_v_state(np.ndarray):
             print('q_ekv_in посчиталось впервые')
             if self.__q_st_in is not None:
                 print('расчет прошел через q_st_in')
-                # self.__r_ekv_in = np.dot(self.matrix.d.T, self.__r_st_in)
-                self.__r_ekv_in = self.matrix.d.T.dot(self.__r_st_in)
+                self.__r_ekv_in = np.dot(self.matrix.d.T, self.__r_st_in)
                 self.__v_ekv_in = np.dot(self.matrix.d.T, self.__v_st_in)
-                self.__q_ekv_in = self.concatenate((self.__r_ekv_in, self.__v_ekv_in, np.array([self.__q_st_in[6]])))
+                self.__q_ekv_in = np.concatenate((self.__r_ekv_in, self.__v_ekv_in, np.array([self.__q_st_in[6]])))
 
             elif self.__q_gr is not None:
                 print('расчет прошел через q_gr')
                 self.__r_gr = np.dot(self.matrix.d.T, self.__r_st_in)
                 self.__v_gr = np.dot(self.matrix.d.T, self.__v_st_in)
-                self.__q_ekv_in = self.concatenate((self.__r_ekv_in, self.__v_ekv_in, np.array([self.__q_st_in[6]])))
+                self.__q_ekv_in = np.concatenate((self.__r_ekv_in, self.__v_ekv_in, np.array([self.__q_st_in[6]])))
 
 
         return self.__q_ekv_in
 
     def q_gr_vector(self):
         pass
-    
 
-    def concatenate(self, *args):
-        return np.concatenate(*args)
 #a = Q_v_state()
 #print(a.__dict__)
 

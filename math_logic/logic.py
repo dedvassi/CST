@@ -31,8 +31,7 @@ def main():
 
     # Экземпляр класса вектора состояния
     Q = Q_v_state(matrix, start_param.init_data)
-    
-    print(Q.concatenate)
+
     
     print(f'vector in start iner sys {Q.q_st_in}')
 
