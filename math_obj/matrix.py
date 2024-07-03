@@ -21,7 +21,7 @@ class Matrix:
         self.__data_T_G = dt_2
         self.__T_G = None
 
-        self.Ω = dt_2[0]
+        self.Ω_vector = np.array([0, 0, dt_2[0]])
     
     @property
     def d(self):
@@ -52,7 +52,6 @@ class Matrix:
     def data_T_G(self, value):
         self.__data_T_G = value
         self.__T_G = None
-        a = m.T_
     @property
     def T_G(self):
         if self.__T_G is None:
