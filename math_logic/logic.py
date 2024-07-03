@@ -2,6 +2,7 @@ import numpy as np
 from math_obj.q_vector import Q_v_state
 from math_obj.matrix import Matrix
 from working_with_files.config import Files_con
+# from math_obj.f_prch import F_prch_maker
 
 
 def main():
@@ -34,14 +35,17 @@ def main():
 
     
     print(f'vector in start iner sys {Q.q_st_in}')
-
+    print()
+    print(f'vector in gr sys {Q.q_gr}')
+    print()
     print(f'vector in ekv iner sys {Q.q_ekv_in}')
     print()
-    print(Q.__dict__)
 
+    ksi_gr = np.array(Q.q_gr[:3])
+    print(ksi_gr)
 
-
-
+    # f = F_prch_maker(1,2,3,4)
+    # f.__s
 
 
 

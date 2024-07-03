@@ -3,8 +3,8 @@ from working_with_files.config import *
 import os
 
 # Пути к файлам
-start_parametrs_path = './con_files/last_init_data.yaml'
-start_iner_sys_path = './con_files/start_iner_sys_data.yaml'
+start_parametrs_path = '../con_files/last_init_data.yaml'
+start_iner_sys_path = '../con_files/start_iner_sys_data.yaml'
 
 
 start_parametrs_data = {
@@ -16,8 +16,8 @@ start_parametrs_data = {
         '5_vz': 1.5086193e2,
         '6_t': 196.6801,
         '7_system': 1,
-        '8_mod_atm': 1,
-        '9_mod_gravity_pole': 1
+        '8_mod_gravity_pole': 1,
+        '9_mod_atm': 1,
     }
 
 start_iner_sys_data = {
