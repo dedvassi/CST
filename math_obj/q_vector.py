@@ -25,73 +25,32 @@ class Q_v_state():
 
         if self.init_data[7] == 1:
             print('Стартовая инерциальная геоцентрическая СК')
-            self.__q_st_in = self.load_Q()
+            self.__q_st_in = self.load_q()
             x, y, z = self.__q_st_in[:3]
             vx, vy, vz = self.__q_st_in[3:6]
             self.__r_st_in = np.array([x, y, z])
             self.__v_st_in = np.array([vx, vy, vz])
 
-
-            self.__q_ekv_in = None
-            self.__r_ekv_in = None
-            self.__v_ekv_in = None
-
-            self.__q_gr = None
-            self.__r_gr = None
-            self.__v_gr = None
-
-
-
-        if self.init_data[7] == 2:
+        elif self.init_data[7] == 2:
             print('Экваториальная инерциальная геоцентрическая СК')
-            self.__q_ekv_in = self.load_Q()
+            self.__q_ekv_in = self.load_q()
             ksi_1, ksi_2, ksi_3, v_ksi_1, v_ksi_2, v_ksi_3 = self.__q_ekv_in[:6]
             self.__r_ekv_in = np.array([ksi_1, ksi_2, ksi_3])
             self.__v_ekv_in = np.array([v_ksi_1, v_ksi_2, v_ksi_3])
 
-            self.__q_st_in = None
-            self.__r_st_in = None
-            self.__v_st_in = None
-
-            self.__q_gr = None
-            self.__r_gr = None
-            self.__v_gr = None
-
-        if self.init_data[7] == 3:
+        elif self.init_data[7] == 3:
             print('Гринвичская СК')
-            self.__q_gr = self.load_Q()
-            ksi_gr_1, ksi_gr_2, ksi_gr_3, v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3 = self.__q_ekv_in[:6]
+            self.__q_gr = self.load_q()
+            ksi_gr_1, ksi_gr_2, ksi_gr_3, v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3 = self.__q_gr[:6]
             self.__r_gr = np.array([ksi_gr_1, ksi_gr_2, ksi_gr_3])
             self.__v_gr = np.array([v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3])
 
-            self.__q_st_in = None
-            self.__r_st_in = None
-            self.__v_st_in = None
-
-            self.__q_ekv_in = None
-            self.__r_ekv_in = None
-            self.__v_ekv_in = None
-
-    def load_Q(self):
+    def load_q(self):
         """
         Подгружает параметры начального состояния
         """
         data = self.init_data
-        self.x = data[0]
-        self.y = data[1]
-        self.z = data[2] 
-        self.vx = data[3] 
-        self.vy = data[4] 
-        self.vz = data[5] 
-        self.t = data[6] 
-        return np.array([self.x,
-                              self.y,
-                              self.z,
-                              self.vx,
-                              self.vy,
-                              self.vz,
-                              self.t,
-                              ])
+        return np.array([data[0], data[1], data[2], data[3], data[4], data[5], data[6]])
 
     @property
     def q_st_in(self):
