@@ -38,7 +38,7 @@ class F_prch_maker:
         """Добавление гравитационного ускорения"""
         if self.__grav_model == 0:
             def grav_accel(q):
-                r = np.array(q[1:3])
+                r = np.array(q[3])
                 r_norm = np.linalg.norm(r)
                 g = -fM * r / r_norm ** 3
                 return g
