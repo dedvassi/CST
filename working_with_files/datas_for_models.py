@@ -1,4 +1,5 @@
-class datas_for_models(object):
-    """description of class"""
+
+def check_csv_file_atmo(model):
+    pass
 
 
