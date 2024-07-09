@@ -15,9 +15,9 @@ start_parametrs_data = {
         '4_vy': 8.0158688e2,
         '5_vz': 1.5086193e2,
         '6_t': 196.6801,
-        '7_system': 1,
-        '8_mod_gravity_pole': 1,
-        '9_mod_atm': 1,
+        '7_system': 0,
+        '8_mod_gravity_pole': 0,
+        '9_mod_atm': 0
     }
 
 start_iner_sys_data = {
@@ -27,8 +27,8 @@ start_iner_sys_data = {
      '3_azimut_0': 60.553177
  }
 
-start_iner_sys = Start_iner_sys(start_iner_sys_path)
-start_parametrs = Start_parametrs(start_parametrs_path)
+start_iner_sys = Files_con(start_iner_sys_path)
+start_parametrs = Files_con(start_parametrs_path)
 
-start_parametrs.write_to_last_init(start_parametrs_data)
+start_parametrs.write_to_scd(start_parametrs_data)
 start_iner_sys.write_to_scd(start_iner_sys_data)
