@@ -38,7 +38,7 @@ class F_prch_maker:
         """Добавление гравитационного ускорения"""
         if self.__grav_model == 0:
             def grav_accel(q):
-                r = np.array(q[3])
+                r = np.array(q[:3])
                 r_norm = np.linalg.norm(r)
                 g = -fM * r / r_norm ** 3
                 return g
@@ -97,5 +97,3 @@ class F_prch_maker:
             raise ValueError("Ошибка инициализации модели атмосферы.\n"
                              "Функция не может быть сформирована.\n"
                              "Проверьте входные данные")
-
-a = F_prch_maker(1, 2, 3, 0, 5)
