@@ -2,14 +2,14 @@ import numpy as np
 
 class Q_v_state():
     """
-    Этот класс позволяет создавать и модифицировать вектор состояния q
+    Этот класс позволяет создавать и модифицировать вектор состояния q (7-вектор)
     """
-    def __init__(self, matrix,  start_param, *args, **kwargs):
+    def __init__(self, matrix, q_non_sys, system_coord,  *args, **kwargs):
         """
         Инициализация вектора состояния q.
         """
         self.matrix = matrix
-        self.init_data = start_param
+        self.init_data = np.concantenate((q_non_sys, system_coord))
 
         self.__q_st_in = None
         self.__q_ekv_in = None
@@ -44,6 +44,9 @@ class Q_v_state():
             ksi_gr_1, ksi_gr_2, ksi_gr_3, v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3 = self.__q_gr[:6]
             self.__r_gr = np.array([ksi_gr_1, ksi_gr_2, ksi_gr_3])
             self.__v_gr = np.array([v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3])
+        else:
+            raise ValueError("Несуществующая СК")
+
 
     def load_q(self):
         """
@@ -80,15 +83,17 @@ class Q_v_state():
                 self.__v_ekv_in = np.dot(self.matrix.T_G.T, self.__v_gr) + np.cross(self.matrix.Ω_vector, self.__r_ekv_in)
                 self.__q_ekv_in = np.concatenate((self.__r_ekv_in, self.__v_ekv_in, np.array([self.__q_gr[6]])))
             else:
-                raise ValueError("Произошла ошибка в свойстве 'q_ekv_in'\n"
-                                 "Не найдено иных представлений вектора")
+                raise ValueError("Неудалось преобразовать вектор в Экваториальную геоцентрическую инерциальную систему.\n"
+                                 "Исключение в свойстве 'q_ekv_in' - не найдены иные формы вектора")
 
         return self.__q_ekv_in
 
     @property
     def q_gr(self):
         if self.__q_gr is None:
+            print('пока в гринвиче нет ничего')
             if self.__q_ekv_in is None:
+                print("Сперва нашел в экваториальной")
                 self.__q_ekv_in = self.q_ekv_in
 
             self.__r_gr = np.dot(self.matrix.T_G, self.__r_ekv_in)
