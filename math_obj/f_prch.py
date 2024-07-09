@@ -3,7 +3,7 @@ from working_with_files.datas_for_models import *
 class F_prch_maker:
     """Собирает функцию правой части в зависимости от установленных моделей"""
 
-    def __init__(self, fM, get_stand_atmo_datar, get_TCxM, grav_m: int, atmo_m: int):
+    def __init__(self, grav_m: int, atmo_m: int, Cx_priority:int):
         self.__start_param = np.concatenate((np.array([grav_m]), np.array([atmo_m])))
 
         # Модели поля и атмосферы
@@ -11,8 +11,11 @@ class F_prch_maker:
         self.__atmo_model = self.__models('atmo')
 
         # Кэшируем данные из таблиц по атмосфере
-        self.__atmo_cache = check_csv_file_atmo(self.__atmo_model)
+        self.__atmo_cache = check_csv_file_atmo(self.__atmo_model, 1)
         self.__analysis_atmo = self.__analysis_atmo_cache()
+
+        self.__Cx_cache = check_csv_file_TCxM(Cx_priority)
+        self.__analysis_Cx = self.__analysis_Cx_cache()
 
         self.__f_prch = None
         self.__speed_comp = self.__speed_component()
@@ -50,13 +53,10 @@ class F_prch_maker:
         """Добавление аэродинамики"""
         if self.__atmo_model == 0:
             # Применяется модель без атмосферы
-            def aero_d_resist(ro, T, v_norm, v_ort):
-                Wa_vector = np.array([0, 0, 0])  # Для ясности того, что оно возвращает (на самом деле можно просто вернуть массив нулей)
-                return Wa_vector
-            return aero_d_resist
+            return None
         else:
             def aero_d_resist(ro, v_norm, v_ort, Cx, S_midotd, m_otd):
-                dP = ro * ((v_norm ** 2) / 2)
+                dP = ro * (v_norm ** 2) / 2
                 Wa = -((Cx * S_midotd) / m_otd) * dP # Коэф
                 Wa_vector = Wa * v_ort  # вектор
                 return Wa_vector
@@ -64,22 +64,113 @@ class F_prch_maker:
 
     def __analysis_atmo_cache(self):
         if self.__atmo_model == 0:
-            def analysis_atmo():
+            # Модель без атмосферы
+            def analysis_atmo(h):
                 ro, T = (0, 0)
                 return ro, T
             return analysis_atmo
+
         if self.__atmo_model == 1:
             # Стандартная модель атмосферы
-            pass
+            def analysis_atmo(h):
+                h_values = sorted(self.__atmo_cache.keys())
+                h_min = h_values[0]
+                h_max = h_values[-1]
+
+                if h <= h_min:
+                    # Высота меньше минимальной из таблицы или совпадает с ней
+                    h = h_min
+                    ro, T = self.__atmo_cache[h]
+                    return ro, T
+                if h >= h_max:
+                    # Высота превышает максимальную из таблицы или совпадает с ней
+                    h = h_max
+                    ro, T = self.__atmo_cache[h]
+                    return ro, T
+                else:
+                    # Высота находится в пределах таблицы
+                    if h in h_values:
+                        # Высота находится в узле таблицы
+                        ro, T = self.__atmo_cache[h]
+                        return ro, T
+                    else:
+                        # Высота не находится в узле таблицы
+                        h_l = None
+                        h_r = None
+                        for h_s in h_values:
+                            if h_s < h:
+                                h_l = h_s
+                            if h_s > h and h_r is None:
+                                h_r = h_s
+                                break
+
+                        ro_l, T_l = self.__atmo_cache[h_l]
+                        ro_r, T_r = self.__atmo_cache[h_r]
+
+                        ro = self.__line_interpolation(h, h_l, h_r, ro_l, ro_r)
+                        T = self.__line_interpolation(h, h_l, h_r, T_l, T_r)
+
+                        return ro, T
+
+    def __analysis_Cx_cache(self):
+        def analysis_Cx(v, T):
+            # Скорость звук
+            Cs = alpha * np.sqrt(T)
+            # Махи
+            M = v/Cs
+
+            M_values = sorted(self.__Cx_cache.keys())
+            M_min = M_values[0]
+            M_max = M_values[-1]
+
+            if M <= M_min:
+                M = M_min
+                Cx = self.__Cx_cache[M]
+                return Cx
+
+            if M >= M_max:
+                M = M_max
+                Cx = self.__Cx_cache[M]
+                return Cx
+
+            else:
+                if M in M_values:
+                    Cx = self.__Cx_cache[M]
+                    return Cx
+                else:
+                    M_l = None
+                    M_r = None
+
+                    for M_s in M_values:
+                        if M_s < M:
+                            M_l = M_s
+                        if M_s > M and M_r is None:
+                            M_r = M_s
+                    Cx_l = self.__Cx_cache[M_l]
+                    Cx_r = self.__Cx_cache[M_r]
+
+                    Cx = self.__line_interpolation(M, M_l, M_r, Cx_l, Cx_r)
+
+                    return Cx
+
+        return analysis_Cx
+
+
+
 
     @property
     def f_prch(self):
         if self.__f_prch is None:
-            def f_prch(q):
+            def f_prch(q, h):
                 v, v_norm, v_ort = self.__speed_comp(q)
                 f_accel = np.zeros(3)
                 if self.__grav_accel is not None:
                     f_accel += self.__grav_accel(q)
+
+                if self.__aero_d_resist is not None:
+                    ro, T = self.__analysis_atmo(h)
+                    Cx = self.__analysis_Cx(v, T)
+                    f_accel += self.__aero_d_resist(ro, v_norm, v_ort, Cx, S_midotd, m_otd)
                 return np.concatenate((v, f_accel, [1]))
             self.__f_prch = f_prch
         return self.__f_prch
