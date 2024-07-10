@@ -34,18 +34,30 @@ def main():
     Q = Q_v_state(matrix, np.array(start_param.init_data[:7]), start_param.init_data[7])
 
     q_st_in = Q.q_st_in
+    q_ekv_in = Q.q_ekv_in
+    q_gr = Q.q_gr
 
-    sum_res = q_st_in.sum_coord()
-    print(sum_res)
-    print(f'vector in start iner sys {Q.q_st_in}')
-    print()
-    print(f'vector in gr sys {Q.q_gr}')
-    print()
-    print(f'vector in ekv iner sys {Q.q_ekv_in}')
-    print()
 
-    ksi_gr = np.array(Q.q_gr[:3])
-    print(ksi_gr)
+    print(f'vector in st_in {q_st_in}')
+    print(f'h {q_st_in.height}')
+    print(f'proj {q_st_in.proj_point}')
+
+    print(f'vector in ekv_in {q_ekv_in}')
+    print(f'h {q_ekv_in.height}')
+    print(f'proj {q_ekv_in.proj_point}')
+
+    print(f'vector in gr {q_gr}')
+    print(f'h {q_gr.height}')
+    print(f'proj {q_gr.proj_point}')
+
+    # print()
+    # print(f'vector in gr sys {Q.q_gr}')
+    # print()
+    # print(f'vector in ekv iner sys {Q.q_ekv_in}')
+    # print()
+    #
+    # ksi_gr = np.array(Q.q_gr[:3])
+    # print(ksi_gr)
 
     # f = F_prch_maker(1,2,3,4)
     # f.__s
