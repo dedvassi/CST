@@ -4,12 +4,22 @@ class Q_v_state():
     """
     Этот класс позволяет создавать и модифицировать вектор состояния q (7-вектор)
     """
+
+    class VectorState():
+        def __init__(self, data):
+            self.data = data
+
+        def sum_coord(self):
+            return np.sum(self.data[:3])  # Пример метода для суммирования первых трех координат
+
+        def __getitem__(self, index):
+            return self.data[index]
     def __init__(self, matrix, q_non_sys, system_coord,  *args, **kwargs):
         """
         Инициализация вектора состояния q.
         """
         self.matrix = matrix
-        self.init_data = np.concantenate((q_non_sys, system_coord))
+        self.init_data = np.concatenate((q_non_sys, np.array([system_coord])))
 
         self.__q_st_in = None
         self.__q_ekv_in = None
@@ -25,7 +35,7 @@ class Q_v_state():
 
         if self.init_data[7] == 1:
             print('Стартовая инерциальная геоцентрическая СК')
-            self.__q_st_in = self.load_q()
+            self.__q_st_in = self.VectorState(self.__load_q())
             x, y, z = self.__q_st_in[:3]
             vx, vy, vz = self.__q_st_in[3:6]
             self.__r_st_in = np.array([x, y, z])
@@ -33,14 +43,14 @@ class Q_v_state():
 
         elif self.init_data[7] == 2:
             print('Экваториальная инерциальная геоцентрическая СК')
-            self.__q_ekv_in = self.load_q()
+            self.__q_ekv_in = self.__load_q()
             ksi_1, ksi_2, ksi_3, v_ksi_1, v_ksi_2, v_ksi_3 = self.__q_ekv_in[:6]
             self.__r_ekv_in = np.array([ksi_1, ksi_2, ksi_3])
             self.__v_ekv_in = np.array([v_ksi_1, v_ksi_2, v_ksi_3])
 
         elif self.init_data[7] == 3:
             print('Гринвичская СК')
-            self.__q_gr = self.load_q()
+            self.__q_gr = self.__load_q()
             ksi_gr_1, ksi_gr_2, ksi_gr_3, v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3 = self.__q_gr[:6]
             self.__r_gr = np.array([ksi_gr_1, ksi_gr_2, ksi_gr_3])
             self.__v_gr = np.array([v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3])
@@ -48,12 +58,15 @@ class Q_v_state():
             raise ValueError("Несуществующая СК")
 
 
-    def load_q(self):
+    def __load_q(self):
         """
         Подгружает параметры начального состояния
         """
         data = self.init_data
         return np.array([data[0], data[1], data[2], data[3], data[4], data[5], data[6]])
+
+    def sum_coord(self):
+        return np.sum(self.init_data[:6])  # Пример метода, который можно вызывать
 
     @property
     def q_st_in(self):
@@ -63,8 +76,7 @@ class Q_v_state():
 
             self.__r_st_in = np.dot(self.matrix.d, self.__r_ekv_in)
             self.__v_st_in = np.dot(self.matrix.d, self.__v_ekv_in)
-            self.__q_st_in = np.concatenate((self.__r_st_in, self.__v_st_in, np.array([self.__q_ekv_in[6]])))
-
+            self.__q_st_in = self.VectorState(np.concatenate((self.__r_st_in, self.__v_st_in, np.array([self.__q_ekv_in[6]]))))
         return self.__q_st_in
 
     @property

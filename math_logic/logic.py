@@ -31,9 +31,12 @@ def main():
     print()
 
     # Экземпляр класса вектора состояния
-    Q = Q_v_state(matrix, start_param.init_data)
+    Q = Q_v_state(matrix, np.array(start_param.init_data[:7]), start_param.init_data[7])
 
-    
+    q_st_in = Q.q_st_in
+
+    sum_res = q_st_in.sum_coord()
+    print(sum_res)
     print(f'vector in start iner sys {Q.q_st_in}')
     print()
     print(f'vector in gr sys {Q.q_gr}')
