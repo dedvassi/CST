@@ -31,24 +31,29 @@ def main():
     print()
 
     # Экземпляр класса вектора состояния
-    Q = Q_v_state(matrix, np.array(start_param.init_data[:7]), start_param.init_data[7])
+    q = Q_v_state(matrix, np.array(start_param.init_data[:7]), start_param.init_data[7])()
+    print(q.in_st.height)
+    print(q.in_ekv.height)
+    print(q.in_gr.height)
+    # q_st_in = Q.q_st_in
+    # q_ekv_in = Q.q_ekv_in
+    # q_gr = Q.q_gr
+    #
+    # print(f'vector in st_in {q_st_in}')
+    # print(q_st_in.in_gr)
 
-    q_st_in = Q.q_st_in
-    q_ekv_in = Q.q_ekv_in
-    q_gr = Q.q_gr
 
 
-    print(f'vector in st_in {q_st_in}')
-    print(f'h {q_st_in.height}')
-    print(f'proj {q_st_in.proj_point}')
-
-    print(f'vector in ekv_in {q_ekv_in}')
-    print(f'h {q_ekv_in.height}')
-    print(f'proj {q_ekv_in.proj_point}')
-
-    print(f'vector in gr {q_gr}')
-    print(f'h {q_gr.height}')
-    print(f'proj {q_gr.proj_point}')
+    # print(f'h {q_st_in.height}')
+    # print(f'proj {q_st_in.proj_point}')
+    #
+    # print(f'vector in ekv_in {q_ekv_in}')
+    # print(f'h {q_ekv_in.height}')
+    # print(f'proj {q_ekv_in.proj_point}')
+    #
+    # print(f'vector in gr {q_gr}')
+    # print(f'h {q_gr.height}')
+    # print(f'proj {q_gr.proj_point}')
 
     # print()
     # print(f'vector in gr sys {Q.q_gr}')

@@ -1,32 +1,87 @@
 import numpy as np
 from scipy.optimize import minimize
 
+class hue:
+    def popf(self):
+        print("ddd")
 class Q_v_state:
     """
     Этот класс позволяет создавать и модифицировать вектор состояния q (7-вектор)
     """
 
     class VectorState:
-        def __init__(self, init_value, a_oze, b_oze, r_oze_sr):
+        def __init__(self, outer_instance, init_value, sys, a_oze, b_oze, r_oze_sr):
+            self.outer_instance = outer_instance
             self.__value = init_value
+            self.__sys = sys
             self.__a_oze = a_oze
             self.__b__oze = b_oze
             self.__r_oze_sr = r_oze_sr
 
+            self.__value_change = False
+            self.__grin_for_calculation_h = None
             self.__height_above_ellipsoid = None
             self.__proj_point = None
+
+            self.__depth = 0
 
         def __str__(self):
             return str(self.__value)
 
+        def __repr__(self):
+            if self.__depth > 2:  # Ограничиваем глубину до 2
+                return "..."
+            self.__depth += 1
+            result = f"VectorState(value={self.__value}, height={self.height}, proj_point={self.proj_point})"
+            self.__depth -= 1
+            return result
+
+        def __call__(self):
+            return self.__value
+
+        def __array__(self):
+            return self.__value
+
         def __getitem__(self, item):
             return self.__value[item]
+
+        def __add__(self, other):
+            if isinstance(other, self.__class__):
+                return self.__class__(self.__value + other.value, self.__a_oze, self.__b__oze, self.__r_oze_sr)
+            elif isinstance(other, np.ndarray):
+                return self.__class__(self.__value + other, self.__a_oze, self.__b__oze, self.__r_oze_sr)
+            else:
+                raise TypeError("Unsupported type for additional")
+
+        def __iadd__(self, other):
+            if isinstance(other, self.__class__):
+                return self.__class__(self.__value + other.value, self.__a_oze, self.__b__oze, self.__r_oze_sr)
+            elif isinstance(other, np.ndarray):
+                return self.__class__(self.__value + other, self.__a_oze, self.__b__oze, self.__r_oze_sr)
+            else:
+                raise TypeError("Unsupported type for additional")
+
+
+        @property
+        def in_st(self):
+            return self.outer_instance.q_st_in
+
+        @property
+        def in_ekv(self):
+            return self.outer_instance.q_ekv_in
+
+        @property
+        def in_gr(self):
+            return self.outer_instance.q_gr
+
         @property
         def value(self):
             return self.__value
+
         @value.setter
         def value(self, new_value):
             self.__value = new_value
+            self.outer_instance.set_value(self.__value, self.__sys)
             self.__height_above_ellipsoid = None
             self.__proj_point = None
 
@@ -35,12 +90,7 @@ class Q_v_state:
             def project_point_to_sphere(q):
 
                 r = np.array(q[:3])
-
-                print(f"rrrr {r}")
                 r_norm = np.linalg.norm(r)
-                print(f"rrrr {r_norm}")
-                a = (6371110.0 / r_norm) * r
-                print(f"aaaaa {a}")
                 return (self.__r_oze_sr / r_norm) * r
 
             # Функция для проекции точки на эллипсоид
@@ -70,8 +120,11 @@ class Q_v_state:
                     return np.array(optimal_point), np.array(distance)
                 else:
                     raise ValueError("Оптимизация не удалась: " + result.message)
-
-            self.__proj_point, self.__height_above_ellipsoid = project_point_to_ellipsoid(self)
+            if self.__sys != 3:
+                self.__grin_for_calculation_h = self.outer_instance.q_gr
+                self.__proj_point, self.__height_above_ellipsoid = project_point_to_ellipsoid(self.__grin_for_calculation_h)
+            else:
+                self.__proj_point, self.__height_above_ellipsoid = project_point_to_ellipsoid(self)
 
         @property
         def proj_point(self):
@@ -84,12 +137,17 @@ class Q_v_state:
                 self.__proj_and_height()
             return self.__height_above_ellipsoid
 
-    def __init__(self, matrix, q_non_sys, system_coord,  *args, **kwargs):
+    def __init__(self, matrix, q_non_sys, system_coord, a_oze=6378136.0, b_oze=6356751.361795686, r_oze_sr=6371110.0,  *args, **kwargs):
         """
         Инициализация вектора состояния q.
         """
         self.matrix = matrix
+        self.__value = q_non_sys
+        self.__sys = system_coord
         self.init_data = np.concatenate((q_non_sys, np.array([system_coord])))
+        self.__a_oze = a_oze
+        self.__b__oze = b_oze
+        self.__r_oze_sr = r_oze_sr
 
         self.__q_st_in = None
         self.__q_ekv_in = None
@@ -105,7 +163,7 @@ class Q_v_state:
 
         if self.init_data[7] == 1:
             print('Стартовая инерциальная геоцентрическая СК')
-            self.__q_st_in = self.VectorState(self.__load_q(), 6378136.0, 6356751.361795686, 6371110.0)
+            self.__q_st_in = self.VectorState(self, self.__load_q(), self.init_data[7], 6378136.0, 6356751.361795686, 6371110.0)
             x, y, z = self.__q_st_in[:3]
             vx, vy, vz = self.__q_st_in[3:6]
             self.__r_st_in = np.array([x, y, z])
@@ -113,19 +171,30 @@ class Q_v_state:
 
         elif self.init_data[7] == 2:
             print('Экваториальная инерциальная геоцентрическая СК')
-            self.__q_ekv_in = self.VectorState(self.__load_q(), 6378136.0, 6356751.361795686, 6371110.0)
+            self.__q_ekv_in = self.VectorState(self, self.__load_q(), self.init_data[7], 6378136.0, 6356751.361795686, 6371110.0)
             ksi_1, ksi_2, ksi_3, v_ksi_1, v_ksi_2, v_ksi_3 = self.__q_ekv_in[:6]
             self.__r_ekv_in = np.array([ksi_1, ksi_2, ksi_3])
             self.__v_ekv_in = np.array([v_ksi_1, v_ksi_2, v_ksi_3])
 
         elif self.init_data[7] == 3:
             print('Гринвичская СК')
-            self.__q_gr = self.VectorState(self.__load_q(), 6378136.0, 6356751.361795686, 6371110.0)
+            self.__q_gr = self.VectorState(self, self.__load_q(), self.init_data[7], 6378136.0, 6356751.361795686, 6371110.0)
             ksi_gr_1, ksi_gr_2, ksi_gr_3, v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3 = self.__q_gr[:6]
             self.__r_gr = np.array([ksi_gr_1, ksi_gr_2, ksi_gr_3])
             self.__v_gr = np.array([v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3])
         else:
             raise ValueError("Несуществующая СК")
+
+    def __call__(self):
+        """Возвращает вектор с его начальными значениями и в начальной системе координат"""
+        if self.init_data[7] == 1:
+            return self.__q_st_in
+        elif self.init_data[7] == 2:
+            return self.__q_ekv_in
+        elif self.init_data[7] == 3:
+            return self.__q_gr
+        else:
+            raise ValueError("Неверно инициализировано начальный вектор")
 
     def __load_q(self):
         """
@@ -134,8 +203,74 @@ class Q_v_state:
         data = self.init_data
         return np.array([data[0], data[1], data[2], data[3], data[4], data[5], data[6]])
 
-    def sum_coord(self):
-        return np.sum(self.init_data[:6])  # Пример метода, который можно вызывать
+    @property
+    def value(self):
+        return self.__value
+
+    @value.setter
+    def value(self, new_value):
+        self.__value = new_value
+
+        if self.init_data[7] == 1:
+            print('Стартовая инерциальная геоцентрическая СК')
+            self.__q_st_in = self.VectorState(self, self.__value, self.init_data[7], 6378136.0, 6356751.361795686, 6371110.0)
+            x, y, z = self.__q_st_in[:3]
+            vx, vy, vz = self.__q_st_in[3:6]
+            self.__r_st_in = np.array([x, y, z])
+            self.__v_st_in = np.array([vx, vy, vz])
+
+        elif self.init_data[7] == 2:
+            print('Экваториальная инерциальная геоцентрическая СК')
+            self.__q_ekv_in = self.VectorState(self, self.__value, self.init_data[7], 6378136.0, 6356751.361795686, 6371110.0)
+            ksi_1, ksi_2, ksi_3, v_ksi_1, v_ksi_2, v_ksi_3 = self.__q_ekv_in[:6]
+            self.__r_ekv_in = np.array([ksi_1, ksi_2, ksi_3])
+            self.__v_ekv_in = np.array([v_ksi_1, v_ksi_2, v_ksi_3])
+
+        elif self.init_data[7] == 3:
+            print('Гринвичская СК')
+            self.__q_gr = self.VectorState(self, self.__value, self.init_data[7], 6378136.0, 6356751.361795686, 6371110.0)
+            ksi_gr_1, ksi_gr_2, ksi_gr_3, v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3 = self.__q_gr[:6]
+            self.__r_gr = np.array([ksi_gr_1, ksi_gr_2, ksi_gr_3])
+            self.__v_gr = np.array([v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3])
+        else:
+            raise ValueError("Несуществующая СК")
+
+    def set_value(self, new_value, sys):
+        self.__q_st_in = None
+        self.__q_ekv_in = None
+        self.__q_gr = None
+
+        self.__r_st_in = None
+        self.__r_ekv_in = None
+        self.__r_gr = None
+
+        self.__v_st_in = None
+        self.__v_ekv_in = None
+        self.__v_gr = None
+        if sys == 1:
+            print('Стартовая инерциальная геоцентрическая СК')
+            self.__q_st_in = self.VectorState(self, self.__value, sys, 6378136.0, 6356751.361795686, 6371110.0)
+            x, y, z = self.__q_st_in[:3]
+            vx, vy, vz = self.__q_st_in[3:6]
+            self.__r_st_in = np.array([x, y, z])
+            self.__v_st_in = np.array([vx, vy, vz])
+
+        elif sys == 2:
+            print('Экваториальная инерциальная геоцентрическая СК')
+            self.__q_ekv_in = self.VectorState(self, self.__value, sys, 6378136.0, 6356751.361795686, 6371110.0)
+            ksi_1, ksi_2, ksi_3, v_ksi_1, v_ksi_2, v_ksi_3 = self.__q_ekv_in[:6]
+            self.__r_ekv_in = np.array([ksi_1, ksi_2, ksi_3])
+            self.__v_ekv_in = np.array([v_ksi_1, v_ksi_2, v_ksi_3])
+
+        elif sys == 3:
+            print('Гринвичская СК')
+            self.__q_gr = self.VectorState(self, self.__value, sys, 6378136.0, 6356751.361795686, 6371110.0)
+            ksi_gr_1, ksi_gr_2, ksi_gr_3, v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3 = self.__q_gr[:6]
+            self.__r_gr = np.array([ksi_gr_1, ksi_gr_2, ksi_gr_3])
+            self.__v_gr = np.array([v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3])
+        else:
+            raise ValueError("Несуществующая СК")
+
 
     @property
     def q_st_in(self):
@@ -146,7 +281,7 @@ class Q_v_state:
             self.__r_st_in = np.dot(self.matrix.d, self.__r_ekv_in)
             self.__v_st_in = np.dot(self.matrix.d, self.__v_ekv_in)
             q = np.concatenate((self.__r_st_in, self.__v_st_in, np.array([self.__q_ekv_in[6]])))
-            self.__q_st_in = self.VectorState(q, 6378136.0, 6356751.361795686, 6371110.0)
+            self.__q_st_in = self.VectorState(self, q, 1, 6378136.0, 6356751.361795686, 6371110.0)
         return self.__q_st_in
 
     @property
@@ -158,15 +293,14 @@ class Q_v_state:
                 self.__r_ekv_in = np.dot(self.matrix.d.T, self.__r_st_in)
                 self.__v_ekv_in = np.dot(self.matrix.d.T, self.__v_st_in)
                 q = np.concatenate((self.__r_ekv_in, self.__v_ekv_in, np.array([self.__q_st_in[6]])))
-                print(q)
-                self.__q_ekv_in = self.VectorState(q, 6378136.0, 6356751.361795686, 6371110.0)
+                self.__q_ekv_in = self.VectorState(self, q, 2, 6378136.0, 6356751.361795686, 6371110.0)
 
             elif self.__q_gr is not None:
                 print('расчет прошел через q_gr')
                 self.__r_ekv_in = np.dot(self.matrix.T_G.T, self.__r_gr)
                 self.__v_ekv_in = np.dot(self.matrix.T_G.T, self.__v_gr) + np.cross(self.matrix.Ω_vector, self.__r_ekv_in)
                 q = np.concatenate((self.__r_ekv_in, self.__v_ekv_in, np.array([self.__q_gr[6]])))
-                self.__q_ekv_in = self.VectorState(q, 6378136.0, 6356751.361795686, 6371110.0)
+                self.__q_ekv_in = self.VectorState(self, q, 2, 6378136.0, 6356751.361795686, 6371110.0)
             else:
                 raise ValueError("Неудалось преобразовать вектор в Экваториальную геоцентрическую инерциальную систему.\n"
                                  "Исключение в свойстве 'q_ekv_in' - не найдены иные формы вектора")
@@ -184,7 +318,7 @@ class Q_v_state:
             self.__r_gr = np.dot(self.matrix.T_G, self.__r_ekv_in)
             self.__v_gr = np.dot(self.matrix.T_G, self.__v_ekv_in) - np.cross(self.matrix.Ω_vector, self.__r_gr)
             q = np.concatenate((self.__r_gr, self.__v_gr, np.array([self.__q_ekv_in[6]])))
-            self.__q_gr = self.VectorState(q, 6378136.0, 6356751.361795686, 6371110.0)
+            self.__q_gr = self.VectorState(self, q, 3, 6378136.0, 6356751.361795686, 6371110.0)
         return self.__q_gr
 
 
