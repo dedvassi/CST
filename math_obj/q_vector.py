@@ -1,9 +1,6 @@
 import numpy as np
 from scipy.optimize import minimize
 
-class hue:
-    def popf(self):
-        print("ddd")
 class Q_v_state:
     """
     Этот класс позволяет создавать и модифицировать вектор состояния q (7-вектор)
@@ -162,7 +159,6 @@ class Q_v_state:
         self.__v_gr = None
 
         if self.init_data[7] == 1:
-            print('Стартовая инерциальная геоцентрическая СК')
             self.__q_st_in = self.VectorState(self, self.__load_q(), self.init_data[7], 6378136.0, 6356751.361795686, 6371110.0)
             x, y, z = self.__q_st_in[:3]
             vx, vy, vz = self.__q_st_in[3:6]
@@ -170,14 +166,12 @@ class Q_v_state:
             self.__v_st_in = np.array([vx, vy, vz])
 
         elif self.init_data[7] == 2:
-            print('Экваториальная инерциальная геоцентрическая СК')
             self.__q_ekv_in = self.VectorState(self, self.__load_q(), self.init_data[7], 6378136.0, 6356751.361795686, 6371110.0)
             ksi_1, ksi_2, ksi_3, v_ksi_1, v_ksi_2, v_ksi_3 = self.__q_ekv_in[:6]
             self.__r_ekv_in = np.array([ksi_1, ksi_2, ksi_3])
             self.__v_ekv_in = np.array([v_ksi_1, v_ksi_2, v_ksi_3])
 
         elif self.init_data[7] == 3:
-            print('Гринвичская СК')
             self.__q_gr = self.VectorState(self, self.__load_q(), self.init_data[7], 6378136.0, 6356751.361795686, 6371110.0)
             ksi_gr_1, ksi_gr_2, ksi_gr_3, v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3 = self.__q_gr[:6]
             self.__r_gr = np.array([ksi_gr_1, ksi_gr_2, ksi_gr_3])
@@ -212,7 +206,6 @@ class Q_v_state:
         self.__value = new_value
 
         if self.init_data[7] == 1:
-            print('Стартовая инерциальная геоцентрическая СК')
             self.__q_st_in = self.VectorState(self, self.__value, self.init_data[7], 6378136.0, 6356751.361795686, 6371110.0)
             x, y, z = self.__q_st_in[:3]
             vx, vy, vz = self.__q_st_in[3:6]
@@ -220,14 +213,12 @@ class Q_v_state:
             self.__v_st_in = np.array([vx, vy, vz])
 
         elif self.init_data[7] == 2:
-            print('Экваториальная инерциальная геоцентрическая СК')
             self.__q_ekv_in = self.VectorState(self, self.__value, self.init_data[7], 6378136.0, 6356751.361795686, 6371110.0)
             ksi_1, ksi_2, ksi_3, v_ksi_1, v_ksi_2, v_ksi_3 = self.__q_ekv_in[:6]
             self.__r_ekv_in = np.array([ksi_1, ksi_2, ksi_3])
             self.__v_ekv_in = np.array([v_ksi_1, v_ksi_2, v_ksi_3])
 
         elif self.init_data[7] == 3:
-            print('Гринвичская СК')
             self.__q_gr = self.VectorState(self, self.__value, self.init_data[7], 6378136.0, 6356751.361795686, 6371110.0)
             ksi_gr_1, ksi_gr_2, ksi_gr_3, v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3 = self.__q_gr[:6]
             self.__r_gr = np.array([ksi_gr_1, ksi_gr_2, ksi_gr_3])
@@ -248,7 +239,6 @@ class Q_v_state:
         self.__v_ekv_in = None
         self.__v_gr = None
         if sys == 1:
-            print('Стартовая инерциальная геоцентрическая СК')
             self.__q_st_in = self.VectorState(self, self.__value, sys, 6378136.0, 6356751.361795686, 6371110.0)
             x, y, z = self.__q_st_in[:3]
             vx, vy, vz = self.__q_st_in[3:6]
@@ -256,14 +246,12 @@ class Q_v_state:
             self.__v_st_in = np.array([vx, vy, vz])
 
         elif sys == 2:
-            print('Экваториальная инерциальная геоцентрическая СК')
             self.__q_ekv_in = self.VectorState(self, self.__value, sys, 6378136.0, 6356751.361795686, 6371110.0)
             ksi_1, ksi_2, ksi_3, v_ksi_1, v_ksi_2, v_ksi_3 = self.__q_ekv_in[:6]
             self.__r_ekv_in = np.array([ksi_1, ksi_2, ksi_3])
             self.__v_ekv_in = np.array([v_ksi_1, v_ksi_2, v_ksi_3])
 
         elif sys == 3:
-            print('Гринвичская СК')
             self.__q_gr = self.VectorState(self, self.__value, sys, 6378136.0, 6356751.361795686, 6371110.0)
             ksi_gr_1, ksi_gr_2, ksi_gr_3, v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3 = self.__q_gr[:6]
             self.__r_gr = np.array([ksi_gr_1, ksi_gr_2, ksi_gr_3])
@@ -287,16 +275,13 @@ class Q_v_state:
     @property
     def q_ekv_in(self):
         if self.__q_ekv_in is None:
-            print('q_ekv_in посчиталось впервые')
             if self.__q_st_in is not None:
-                print('расчет прошел через q_st_in')
                 self.__r_ekv_in = np.dot(self.matrix.d.T, self.__r_st_in)
                 self.__v_ekv_in = np.dot(self.matrix.d.T, self.__v_st_in)
                 q = np.concatenate((self.__r_ekv_in, self.__v_ekv_in, np.array([self.__q_st_in[6]])))
                 self.__q_ekv_in = self.VectorState(self, q, 2, 6378136.0, 6356751.361795686, 6371110.0)
 
             elif self.__q_gr is not None:
-                print('расчет прошел через q_gr')
                 self.__r_ekv_in = np.dot(self.matrix.T_G.T, self.__r_gr)
                 self.__v_ekv_in = np.dot(self.matrix.T_G.T, self.__v_gr) + np.cross(self.matrix.Ω_vector, self.__r_ekv_in)
                 q = np.concatenate((self.__r_ekv_in, self.__v_ekv_in, np.array([self.__q_gr[6]])))
@@ -310,9 +295,7 @@ class Q_v_state:
     @property
     def q_gr(self):
         if self.__q_gr is None:
-            print('пока в гринвиче нет ничего')
             if self.__q_ekv_in is None:
-                print("Сперва нашел в экваториальной")
                 self.__q_ekv_in = self.q_ekv_in
 
             self.__r_gr = np.dot(self.matrix.T_G, self.__r_ekv_in)
