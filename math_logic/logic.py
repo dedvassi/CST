@@ -32,9 +32,9 @@ def main():
 
     # Экземпляр класса вектора состояния
     q = Q_v_state(matrix, np.array(start_param.init_data[:7]), start_param.init_data[7])()
-    print(q.in_st.height)
-    print(q.in_ekv.height)
-    print(q.in_gr.height)
+    print(q.in_gr.speed)
+    # print(q.in_ekv.height)
+    # print(q.in_gr.height)
     # q_st_in = Q.q_st_in
     # q_ekv_in = Q.q_ekv_in
     # q_gr = Q.q_gr

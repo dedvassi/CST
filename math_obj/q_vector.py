@@ -12,10 +12,9 @@ class Q_v_state:
             self.__value = init_value
             self.__sys = sys
             self.__a_oze = a_oze
-            self.__b__oze = b_oze
+            self.__b_oze = b_oze
             self.__r_oze_sr = r_oze_sr
 
-            self.__value_change = False
             self.__grin_for_calculation_h = None
             self.__height_above_ellipsoid = None
             self.__proj_point = None
@@ -44,17 +43,17 @@ class Q_v_state:
 
         def __add__(self, other):
             if isinstance(other, self.__class__):
-                return self.__class__(self.__value + other.value, self.__a_oze, self.__b__oze, self.__r_oze_sr)
+                return self.__class__(self.__value + other.value, self.__a_oze, self.__b_oze, self.__r_oze_sr)
             elif isinstance(other, np.ndarray):
-                return self.__class__(self.__value + other, self.__a_oze, self.__b__oze, self.__r_oze_sr)
+                return self.__class__(self.__value + other, self.__a_oze, self.__b_oze, self.__r_oze_sr)
             else:
                 raise TypeError("Unsupported type for additional")
 
         def __iadd__(self, other):
             if isinstance(other, self.__class__):
-                return self.__class__(self.__value + other.value, self.__a_oze, self.__b__oze, self.__r_oze_sr)
+                return self.__class__(self.__value + other.value, self.__a_oze, self.__b_oze, self.__r_oze_sr)
             elif isinstance(other, np.ndarray):
-                return self.__class__(self.__value + other, self.__a_oze, self.__b__oze, self.__r_oze_sr)
+                return self.__class__(self.__value + other, self.__a_oze, self.__b_oze, self.__r_oze_sr)
             else:
                 raise TypeError("Unsupported type for additional")
 
@@ -72,6 +71,16 @@ class Q_v_state:
             return self.__outer_instance.q_gr
 
         @property
+        def r(self):
+            """
+            Возвращает текущий вектор скорости.
+            """
+            return np.array(self.__value[:3])
+        @property
+        def speed(self):
+            return np.array(self.__value[3:6])
+
+        @property
         def value(self):
             return self.__value
 
@@ -81,6 +90,10 @@ class Q_v_state:
             self.__outer_instance.set_value(self.__value, self.__sys)
             self.__height_above_ellipsoid = None
             self.__proj_point = None
+
+        @property
+        def system(self):
+            return self.__sys
 
         def __proj_and_height(self):
             """Вычисляет точку проекции на ОЗЭ и расстояние до нее."""
@@ -100,10 +113,10 @@ class Q_v_state:
 
                 def ellipsoid_constraint(p):
                     x_, y_, z_ = p
-                    return (x_ ** 2 / self.__a_oze ** 2) + (y_ ** 2 / self.__a_oze ** 2) + (z_ ** 2 / self.__b__oze ** 2) - 1
+                    return (x_ ** 2 / self.__a_oze ** 2) + (y_ ** 2 / self.__a_oze ** 2) + (z_ ** 2 / self.__b_oze ** 2) - 1
 
                 def is_inside_ellipsoid(x, y, z):
-                    return (x ** 2 / self.__a_oze ** 2) + (y ** 2 / self.__a_oze ** 2) + (z ** 2 / self.__b__oze ** 2) - 1 < 0
+                    return (x ** 2 / self.__a_oze ** 2) + (y ** 2 / self.__a_oze ** 2) + (z ** 2 / self.__b_oze ** 2) - 1 < 0
 
                 x_initial = project_point_to_sphere(q)  # Начальное приближение по проекции на сферу
                 constraint = {'type': 'eq', 'fun': ellipsoid_constraint}
@@ -134,7 +147,7 @@ class Q_v_state:
                 self.__proj_and_height()
             return self.__height_above_ellipsoid
 
-    def __init__(self, matrix, q_non_sys, system_coord, a_oze=6378136.0, b_oze=6356751.361795686, r_oze_sr=6371110.0,  *args, **kwargs):
+    def __init__(self, matrix, q_non_sys, system_coord, a_oze=6378136.0, b_oze=6356751.361795686, r_oze_sr=6371110.0):
         """
         Инициализирует вектор состояния q в заданной системе координат.
 
@@ -165,21 +178,23 @@ class Q_v_state:
         self.__v_ekv_in = None
         self.__v_gr = None
 
-        if self.init_data[7] == 1:
-            self.__q_st_in = self.VectorState(self, self.__load_q(), self.init_data[7], 6378136.0, 6356751.361795686, 6371110.0)
+        if self.__sys == 1:
+            self.__q_st_in = self.VectorState(self, self.__value, self.__sys, self.__a_oze, self.__b_oze,
+                                              self.__r_oze_sr)
             x, y, z = self.__q_st_in[:3]
             vx, vy, vz = self.__q_st_in[3:6]
             self.__r_st_in = np.array([x, y, z])
             self.__v_st_in = np.array([vx, vy, vz])
 
-        elif self.init_data[7] == 2:
-            self.__q_ekv_in = self.VectorState(self, self.__load_q(), self.init_data[7], 6378136.0, 6356751.361795686, 6371110.0)
+        elif self.__sys == 2:
+            self.__q_ekv_in = self.VectorState(self, self.__value, self.__sys, self.__a_oze, self.__b_oze,
+                                               self.__r_oze_sr)
             ksi_1, ksi_2, ksi_3, v_ksi_1, v_ksi_2, v_ksi_3 = self.__q_ekv_in[:6]
             self.__r_ekv_in = np.array([ksi_1, ksi_2, ksi_3])
             self.__v_ekv_in = np.array([v_ksi_1, v_ksi_2, v_ksi_3])
 
-        elif self.init_data[7] == 3:
-            self.__q_gr = self.VectorState(self, self.__load_q(), self.init_data[7], 6378136.0, 6356751.361795686, 6371110.0)
+        elif self.__sys == 3:
+            self.__q_gr = self.VectorState(self, self.__value, self.__sys, self.__a_oze, self.__b_oze, self.__r_oze_sr)
             ksi_gr_1, ksi_gr_2, ksi_gr_3, v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3 = self.__q_gr[:6]
             self.__r_gr = np.array([ksi_gr_1, ksi_gr_2, ksi_gr_3])
             self.__v_gr = np.array([v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3])
@@ -214,21 +229,35 @@ class Q_v_state:
         """
         self.__value = new_value
 
-        if self.init_data[7] == 1:
-            self.__q_st_in = self.VectorState(self, self.__value, self.init_data[7], 6378136.0, 6356751.361795686, 6371110.0)
+        self.__q_st_in = None
+        self.__q_ekv_in = None
+        self.__q_gr = None
+
+        self.__r_st_in = None
+        self.__r_ekv_in = None
+        self.__r_gr = None
+
+        self.__v_st_in = None
+        self.__v_ekv_in = None
+        self.__v_gr = None
+
+        if self.__sys == 1:
+            self.__q_st_in = self.VectorState(self, self.__value, self.__sys, self.__a_oze, self.__b_oze,
+                                              self.__r_oze_sr)
             x, y, z = self.__q_st_in[:3]
             vx, vy, vz = self.__q_st_in[3:6]
             self.__r_st_in = np.array([x, y, z])
             self.__v_st_in = np.array([vx, vy, vz])
 
-        elif self.init_data[7] == 2:
-            self.__q_ekv_in = self.VectorState(self, self.__value, self.init_data[7], 6378136.0, 6356751.361795686, 6371110.0)
+        elif self.__sys == 2:
+            self.__q_ekv_in = self.VectorState(self, self.__value, self.__sys, self.__a_oze, self.__b_oze,
+                                               self.__r_oze_sr)
             ksi_1, ksi_2, ksi_3, v_ksi_1, v_ksi_2, v_ksi_3 = self.__q_ekv_in[:6]
             self.__r_ekv_in = np.array([ksi_1, ksi_2, ksi_3])
             self.__v_ekv_in = np.array([v_ksi_1, v_ksi_2, v_ksi_3])
 
-        elif self.init_data[7] == 3:
-            self.__q_gr = self.VectorState(self, self.__value, self.init_data[7], 6378136.0, 6356751.361795686, 6371110.0)
+        elif self.__sys == 3:
+            self.__q_gr = self.VectorState(self, self.__value, self.__sys, self.__a_oze, self.__b_oze, self.__r_oze_sr)
             ksi_gr_1, ksi_gr_2, ksi_gr_3, v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3 = self.__q_gr[:6]
             self.__r_gr = np.array([ksi_gr_1, ksi_gr_2, ksi_gr_3])
             self.__v_gr = np.array([v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3])
@@ -257,21 +286,23 @@ class Q_v_state:
         self.__v_st_in = None
         self.__v_ekv_in = None
         self.__v_gr = None
-        if sys == 1:
-            self.__q_st_in = self.VectorState(self, self.__value, sys, 6378136.0, 6356751.361795686, 6371110.0)
+        if self.__sys == 1:
+            self.__q_st_in = self.VectorState(self, self.__value, self.__sys, self.__a_oze, self.__b_oze,
+                                              self.__r_oze_sr)
             x, y, z = self.__q_st_in[:3]
             vx, vy, vz = self.__q_st_in[3:6]
             self.__r_st_in = np.array([x, y, z])
             self.__v_st_in = np.array([vx, vy, vz])
 
-        elif sys == 2:
-            self.__q_ekv_in = self.VectorState(self, self.__value, sys, 6378136.0, 6356751.361795686, 6371110.0)
+        elif self.__sys == 2:
+            self.__q_ekv_in = self.VectorState(self, self.__value, self.__sys, self.__a_oze, self.__b_oze,
+                                               self.__r_oze_sr)
             ksi_1, ksi_2, ksi_3, v_ksi_1, v_ksi_2, v_ksi_3 = self.__q_ekv_in[:6]
             self.__r_ekv_in = np.array([ksi_1, ksi_2, ksi_3])
             self.__v_ekv_in = np.array([v_ksi_1, v_ksi_2, v_ksi_3])
 
-        elif sys == 3:
-            self.__q_gr = self.VectorState(self, self.__value, sys, 6378136.0, 6356751.361795686, 6371110.0)
+        elif self.__sys == 3:
+            self.__q_gr = self.VectorState(self, self.__value, self.__sys, self.__a_oze, self.__b_oze, self.__r_oze_sr)
             ksi_gr_1, ksi_gr_2, ksi_gr_3, v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3 = self.__q_gr[:6]
             self.__r_gr = np.array([ksi_gr_1, ksi_gr_2, ksi_gr_3])
             self.__v_gr = np.array([v_ksi_gr_1, v_ksi_gr_2, v_ksi_gr_3])
@@ -291,7 +322,7 @@ class Q_v_state:
             self.__r_st_in = np.dot(self.__matrix.d, self.__r_ekv_in)
             self.__v_st_in = np.dot(self.__matrix.d, self.__v_ekv_in)
             q = np.concatenate((self.__r_st_in, self.__v_st_in, np.array([self.__q_ekv_in[6]])))
-            self.__q_st_in = self.VectorState(self, q, 1, self.__a_oze, self.__b_oze, self.__r_oze_sr)
+            self.__q_st_in = self.VectorState(self, q, np.float64(1), self.__a_oze, self.__b_oze, self.__r_oze_sr)
         return self.__q_st_in
 
     @property
@@ -301,16 +332,17 @@ class Q_v_state:
         """
         if self.__q_ekv_in is None:
             if self.__q_st_in is not None:
-                self.__r_ekv_in = np.dot(self.matrix.d.T, self.__r_st_in)
-                self.__v_ekv_in = np.dot(self.matrix.d.T, self.__v_st_in)
+                self.__r_ekv_in = np.dot(self.__matrix.d.T, self.__r_st_in)
+                self.__v_ekv_in = np.dot(self.__matrix.d.T, self.__v_st_in)
                 q = np.concatenate((self.__r_ekv_in, self.__v_ekv_in, np.array([self.__q_st_in[6]])))
-                self.__q_ekv_in = self.VectorState(self, q, 2, self.__a_oze, self.__b_oze, self.__r_oze_sr)
+                self.__q_ekv_in = self.VectorState(self, q, np.float64(1), self.__a_oze, self.__b_oze, self.__r_oze_sr)
 
             elif self.__q_gr is not None:
-                self.__r_ekv_in = np.dot(self.matrix.T_G.T, self.__r_gr)
-                self.__v_ekv_in = np.dot(self.matrix.T_G.T, self.__v_gr) + np.cross(self.matrix.Ω_vector, self.__r_ekv_in)
+                self.__r_ekv_in = np.dot(self.__matrix.T_G.T, self.__r_gr)
+                self.__v_ekv_in = np.dot(self.__matrix.T_G.T, self.__v_gr) + np.cross(self.__matrix.Ω_vector,
+                                                                                      self.__r_ekv_in)
                 q = np.concatenate((self.__r_ekv_in, self.__v_ekv_in, np.array([self.__q_gr[6]])))
-                self.__q_ekv_in = self.VectorState(self, q, 2, self.__a_oze, self.__b_oze, self.__r_oze_sr)
+                self.__q_ekv_in = self.VectorState(self, q, np.float64(1), self.__a_oze, self.__b_oze, self.__r_oze_sr)
             else:
                 raise ValueError("Неудалось преобразовать вектор в Экваториальную геоцентрическую инерциальную систему.\n"
                                  "Исключение в свойстве 'q_ekv_in' - не найдены иные формы вектора")
@@ -329,8 +361,32 @@ class Q_v_state:
             self.__r_gr = np.dot(self.__matrix.T_G, self.__r_ekv_in)
             self.__v_gr = np.dot(self.__matrix.T_G, self.__v_ekv_in) - np.cross(self.__matrix.Ω_vector, self.__r_gr)
             q = np.concatenate((self.__r_gr, self.__v_gr, np.array([self.__q_ekv_in[6]])))
-            self.__q_gr = self.VectorState(self, q, 3, self.__a_oze, self.__b_oze, self.__r_oze_sr)
+            self.__q_gr = self.VectorState(self, q, np.float64(3), self.__a_oze, self.__b_oze, self.__r_oze_sr)
         return self.__q_gr
+
+    @property
+    def r(self):
+        """
+        Возвращает текущий радиус-вектор.
+        """
+        if self.__sys == 1:
+            return self.__r_st_in
+        if self.__sys == 2:
+            return self.__r_ekv_in
+        if self.__sys == 3:
+            return self.__r_gr
+
+    @property
+    def speed(self):
+        """
+        Возвращает текущий вектор скорости.
+        """
+        if self.__sys == 1:
+            return self.__v_st_in
+        if self.__sys == 2:
+            return self.__v_ekv_in
+        if self.__sys == 3:
+            return self.__v_gr
 
     @property
     def system(self):
@@ -338,4 +394,3 @@ class Q_v_state:
         Возвращает текущую СК.
         """
         return self.__sys
-
