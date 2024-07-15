@@ -23,7 +23,7 @@ class Matrix:
 
         self.__data_T_G = dt_2
         self.__T_G = None
-
+        self.Ω = dt_2[0]
         self.Ω_vector = np.array([0, 0, dt_2[0]])
 
     @property
@@ -54,8 +54,11 @@ class Matrix:
 
     @data_T_G.setter
     def data_T_G(self, value):
-        self.__data_T_G = value
-        self.__T_G = None
+        if isinstance(value, np.ndarray) and len(value) == 2:
+            self.__data_T_G = value
+            self.__T_G = None
+        else:
+            raise ValueError("Передано некорректное значение данных для формирования матрицы T_G")
 
     @property
     def T_G(self):

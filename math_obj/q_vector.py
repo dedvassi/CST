@@ -43,17 +43,44 @@ class Q_v_state:
 
         def __add__(self, other):
             if isinstance(other, self.__class__):
-                return self.__class__(self.__value + other.value, self.__a_oze, self.__b_oze, self.__r_oze_sr)
-            elif isinstance(other, np.ndarray):
-                return self.__class__(self.__value + other, self.__a_oze, self.__b_oze, self.__r_oze_sr)
+                if other.system == self.__sys:
+                    return self.__class__(self.__outer_instance, self.__value + other.value, self.__sys, self.__a_oze,
+                                          self.__b_oze, self.__r_oze_sr)
+                else:
+                    if self.__sys == 1:
+                        other = other.in_st
+                    elif self.__sys == 2:
+                        other = other.in_ekv
+                    elif self.__sys == 3:
+                        other = other.in_gr
+                    return self.__class__(self.__outer_instance, self.__value + other.value, self.__sys, self.__a_oze,
+                                          self.__b_oze, self.__r_oze_sr)
+
+            elif isinstance(other, np.ndarray) and len(other) == 7:
+                return self.__class__(self.__outer_instance, self.__value + other, self.__sys, self.__a_oze, self.__b_oze, self.__r_oze_sr)
             else:
                 raise TypeError("Unsupported type for additional")
 
         def __iadd__(self, other):
             if isinstance(other, self.__class__):
-                return self.__class__(self.__value + other.value, self.__a_oze, self.__b_oze, self.__r_oze_sr)
-            elif isinstance(other, np.ndarray):
-                return self.__class__(self.__value + other, self.__a_oze, self.__b_oze, self.__r_oze_sr)
+                if other.system == self.__sys:
+                    self.value = self.__value + other.value
+                    return self.__class__(self.__outer_instance, self.__value, self.__sys, self.__a_oze,
+                                          self.__b_oze, self.__r_oze_sr)
+                else:
+                    if self.__sys == 1:
+                        other = other.in_st
+                    elif self.__sys == 2:
+                        other = other.in_ekv
+                    elif self.__sys == 3:
+                        other = other.in_gr
+                    self.value = self.__value + other.value
+                    return self.__class__(self.__outer_instance, self.__value, self.__sys, self.__a_oze,
+                                          self.__b_oze, self.__r_oze_sr)
+
+            elif isinstance(other, np.ndarray) and len(other) == 7:
+                self.value = self.__value + other
+                return self.__class__(self.__outer_instance, self.__value, self.__sys, self.__a_oze, self.__b_oze, self.__r_oze_sr)
             else:
                 raise TypeError("Unsupported type for additional")
 
@@ -338,6 +365,7 @@ class Q_v_state:
                 self.__q_ekv_in = self.VectorState(self, q, np.float64(1), self.__a_oze, self.__b_oze, self.__r_oze_sr)
 
             elif self.__q_gr is not None:
+                self.__matrix.data_T_G = np.array([self.__matrix.Ω, self.__q_gr[6]])
                 self.__r_ekv_in = np.dot(self.__matrix.T_G.T, self.__r_gr)
                 self.__v_ekv_in = np.dot(self.__matrix.T_G.T, self.__v_gr) + np.cross(self.__matrix.Ω_vector,
                                                                                       self.__r_ekv_in)
@@ -357,7 +385,7 @@ class Q_v_state:
         if self.__q_gr is None:
             if self.__q_ekv_in is None:
                 self.__q_ekv_in = self.q_ekv_in
-
+            self.__matrix.data_T_G = np.array([self.__matrix.Ω, self.__q_ekv_in[6]])
             self.__r_gr = np.dot(self.__matrix.T_G, self.__r_ekv_in)
             self.__v_gr = np.dot(self.__matrix.T_G, self.__v_ekv_in) - np.cross(self.__matrix.Ω_vector, self.__r_gr)
             q = np.concatenate((self.__r_gr, self.__v_gr, np.array([self.__q_ekv_in[6]])))
