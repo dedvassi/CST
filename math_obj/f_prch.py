@@ -3,8 +3,13 @@ from working_with_files.datas_for_models import *
 class F_prch_maker:
     """Собирает функцию правой части в зависимости от установленных моделей"""
 
-    def __init__(self, grav_m: int, atmo_m: int, Cx_priority:int):
+    def __init__(self, grav_m: int, atmo_m: int, Cx_priority:int, fM=398600441800000.0, alpha_cs=20.046796,
+                 s_mid_otd=13.2, m_otd=4000):
         self.__start_param = np.concatenate((np.array([grav_m]), np.array([atmo_m])))
+        self.__fM = fM
+        self.__alpha_cs = alpha_cs
+        self.__s_mid_otd = s_mid_otd
+        self.__m_otd = m_otd
 
         # Модели поля и атмосферы
         self.__grav_model = self.__models('grav')
@@ -43,7 +48,7 @@ class F_prch_maker:
             def grav_accel(q):
                 r = np.array(q[:3])
                 r_norm = np.linalg.norm(r)
-                g = -fM * r / r_norm ** 3
+                g = -self.__fM * r / r_norm ** 3
                 return g
             return grav_accel
         else:
@@ -115,7 +120,7 @@ class F_prch_maker:
     def __analysis_Cx_cache(self):
         def analysis_Cx(v, T):
             # Скорость звук
-            Cs = alpha * np.sqrt(T)
+            Cs = self.__alpha_cs * np.sqrt(T)
             # Махи
             M = v/Cs
 
@@ -170,7 +175,7 @@ class F_prch_maker:
                 if self.__aero_d_resist is not None:
                     ro, T = self.__analysis_atmo(h)
                     Cx = self.__analysis_Cx(v, T)
-                    f_accel += self.__aero_d_resist(ro, v_norm, v_ort, Cx, S_midotd, m_otd)
+                    f_accel += self.__aero_d_resist(ro, v_norm, v_ort, Cx, self.__s_mid_otd, self.__m_otd)
                 return np.concatenate((v, f_accel, [1]))
             self.__f_prch = f_prch
         return self.__f_prch
