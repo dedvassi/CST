@@ -7,7 +7,7 @@ def check_csv_file_atmo(model, month):
 
     if model == 1:
         # Путь к файлу CSV
-        csv_file_path = ('../con_files/stand_atmo_data.csv')
+        csv_file_path = '../data/immutable/stand_atmo_data.csv'
         # Загрузка CSV файла в DataFrame
         df = pd.read_csv(csv_file_path)
 
@@ -22,7 +22,7 @@ def check_csv_file_atmo(model, month):
 def check_csv_file_TCxM(priority):
     if priority == 0:
         # Пуь к файлу CSV
-        csv_file_path = ('../con_files/TCxM.csv')
+        csv_file_path = '../data/immutable/TCxM.csv'
         # Загрузка CSV файла в DataFrame
         df = pd.read_csv(csv_file_path)
 
