@@ -4,7 +4,7 @@ from working_with_files.datas_for_models import *
 class F_prch_maker():
     """Собирает функцию правой части в зависимости от установленных моделей"""
 
-    def __init__(self, grav_m: int, atmo_m: int, Cx_priority:int, omega_z=7.292115e-05,  fM=398600441800000.0, alpha_cs=20.046796,
+    def __init__(self, grav_m: int, atmo_m: int, Cx_priority=0, omega_z=7.292115e-05, month = 1,  fM=398600441800000.0, alpha_cs=20.046796,
                  s_mid_otd=13.2, m_otd=4000):
         super().__init__()
         self.__start_param = np.concatenate((np.array([grav_m]), np.array([atmo_m])))
@@ -19,7 +19,7 @@ class F_prch_maker():
         self.__atmo_model = self.__models('atmo')
 
         # Кэшируем данные из таблиц по атмосфере
-        self.__atmo_cache = check_csv_file_atmo(self.__atmo_model, 1)
+        self.__atmo_cache = check_csv_file_atmo(self.__atmo_model, month)
         self.__analysis_atmo = self.__analysis_atmo_cache()
 
         self.__Cx_cache = check_csv_file_TCxM(Cx_priority)
@@ -132,12 +132,14 @@ class F_prch_maker():
 
                         return ro, T
 
+            return analysis_atmo
+
     def __analysis_Cx_cache(self):
-        def analysis_Cx(v, T):
+        def analysis_Cx(v_norm, T):
             # Скорость звук
             Cs = self.__alpha_cs * np.sqrt(T)
             # Махи
-            M = v/Cs
+            M = v_norm/Cs
 
             M_values = sorted(self.__Cx_cache.keys())
             M_min = M_values[0]
@@ -189,16 +191,15 @@ class F_prch_maker():
                 h = q.height
                 r, r_norm, r_ort = self.__r_comp(q)
                 v, v_norm, v_ort = self.__speed_comp(q)
-                f_accel = np.zeros(3)
                 W_c = (self.__omega_z ** 2) * r
                 W_k = -2 * np.cross(np.array([0, 0, self.__omega_z]), v)
-                f_accel += W_c + W_k
+                f_accel = W_c + W_k
                 if self.__grav_accel is not None:
                     f_accel += self.__grav_accel(r)
 
                 if self.__aero_d_resist is not None:
                     ro, T = self.__analysis_atmo(h)
-                    Cx = self.__analysis_Cx(v, T)
+                    Cx = self.__analysis_Cx(v_norm, T)
                     f_accel += self.__aero_d_resist(ro, v_norm, v_ort, Cx, self.__s_mid_otd, self.__m_otd)
                 return np.concatenate((v, f_accel, [1]))
             self.__f_prch = f_prch
