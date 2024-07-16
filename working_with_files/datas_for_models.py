@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 def check_csv_file_atmo(model, month):
 
@@ -11,9 +10,9 @@ def check_csv_file_atmo(model, month):
         # Загрузка CSV файла в DataFrame
         df = pd.read_csv(csv_file_path)
 
-        h_values = df['h [M]'].values
+        h_values = df['h [м]'].values
         ro_values = df['ro [кг/м3]'].values
-        T_values = df['T [градус К]'].values
+        T_values = df['T [градус K]'].values
 
         cache = {h: (ro, T) for h, ro, T in zip(h_values, ro_values, T_values)}
 
