@@ -362,7 +362,7 @@ class Q_v_state:
                 self.__r_ekv_in = np.dot(self.__matrix.d.T, self.__r_st_in)
                 self.__v_ekv_in = np.dot(self.__matrix.d.T, self.__v_st_in)
                 q = np.concatenate((self.__r_ekv_in, self.__v_ekv_in, np.array([self.__q_st_in[6]])))
-                self.__q_ekv_in = self.VectorState(self, q, np.float64(1), self.__a_oze, self.__b_oze, self.__r_oze_sr)
+                self.__q_ekv_in = self.VectorState(self, q, np.float64(2), self.__a_oze, self.__b_oze, self.__r_oze_sr)
 
             elif self.__q_gr is not None:
                 self.__matrix.data_T_G = np.array([self.__matrix.Ω, self.__q_gr[6]])
@@ -370,7 +370,7 @@ class Q_v_state:
                 self.__v_ekv_in = np.dot(self.__matrix.T_G.T, self.__v_gr) + np.cross(self.__matrix.Ω_vector,
                                                                                       self.__r_ekv_in)
                 q = np.concatenate((self.__r_ekv_in, self.__v_ekv_in, np.array([self.__q_gr[6]])))
-                self.__q_ekv_in = self.VectorState(self, q, np.float64(1), self.__a_oze, self.__b_oze, self.__r_oze_sr)
+                self.__q_ekv_in = self.VectorState(self, q, np.float64(2), self.__a_oze, self.__b_oze, self.__r_oze_sr)
             else:
                 raise ValueError("Неудалось преобразовать вектор в Экваториальную геоцентрическую инерциальную систему.\n"
                                  "Исключение в свойстве 'q_ekv_in' - не найдены иные формы вектора")

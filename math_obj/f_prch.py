@@ -1,11 +1,14 @@
 import numpy as np
 from working_with_files.datas_for_models import *
-class F_prch_maker:
+
+class F_prch_maker():
     """Собирает функцию правой части в зависимости от установленных моделей"""
 
-    def __init__(self, grav_m: int, atmo_m: int, Cx_priority:int, fM=398600441800000.0, alpha_cs=20.046796,
+    def __init__(self, grav_m: int, atmo_m: int, Cx_priority:int, omega_z=7.292115e-05,  fM=398600441800000.0, alpha_cs=20.046796,
                  s_mid_otd=13.2, m_otd=4000):
+        super().__init__()
         self.__start_param = np.concatenate((np.array([grav_m]), np.array([atmo_m])))
+        self.__omega_z = omega_z
         self.__fM = fM
         self.__alpha_cs = alpha_cs
         self.__s_mid_otd = s_mid_otd
@@ -24,8 +27,12 @@ class F_prch_maker:
 
         self.__f_prch = None
         self.__speed_comp = self.__speed_component()
+        self.__r_comp = self.__r_component()
         self.__grav_accel = self.__gravitational_acceleration()
         self.__aero_d_resist = self.__aerodynamics_resist()
+
+    def __call__(self):
+        return self.f_prch
 
     def __models(self, component):
         if component is 'grav':
@@ -33,10 +40,19 @@ class F_prch_maker:
         if component is 'atmo':
             return self.__start_param[1]
 
+    def __r_component(self):
+        """Компоненты радиусвектора с предыдущего шага"""
+        def r_comp(q):
+            r = q.r
+            r_norm = np.linalg.norm(r)
+            r_ort = r/r_norm
+            return r, r_norm, r_ort
+        return r_comp
+
     def __speed_component(self):
         """Компоненты скорости с предыдущего шага"""
         def speed_comp(q):
-            v = np.array(q[3:6])
+            v = q.speed
             v_norm = np.linalg.norm(v)
             v_ort = v/v_norm
             return v, v_norm, v_ort
@@ -45,8 +61,7 @@ class F_prch_maker:
     def __gravitational_acceleration(self):
         """Добавление гравитационного ускорения"""
         if self.__grav_model == 0:
-            def grav_accel(q):
-                r = np.array(q[:3])
+            def grav_accel(r):
                 r_norm = np.linalg.norm(r)
                 g = -self.__fM * r / r_norm ** 3
                 return g
@@ -166,11 +181,20 @@ class F_prch_maker:
     @property
     def f_prch(self):
         if self.__f_prch is None:
-            def f_prch(q, h):
+            def f_prch(q):
+                if q.system != 3:
+                    # Переводим вектор на всякий случай в гринвичскую СК
+                    q = q.in_gr
+
+                h = q.height
+                r, r_norm, r_ort = self.__r_comp(q)
                 v, v_norm, v_ort = self.__speed_comp(q)
                 f_accel = np.zeros(3)
+                W_c = (self.__omega_z ** 2) * r
+                W_k = -2 * np.cross(np.array([0, 0, self.__omega_z]), v)
+                f_accel += W_c + W_k
                 if self.__grav_accel is not None:
-                    f_accel += self.__grav_accel(q)
+                    f_accel += self.__grav_accel(r)
 
                 if self.__aero_d_resist is not None:
                     ro, T = self.__analysis_atmo(h)
