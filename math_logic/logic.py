@@ -35,9 +35,11 @@ def main():
 
     # Экземпляр класса вектора состояния
     q = Q_v_state(matrix, np.array(start_param.init_data[:7]), start_param.init_data[7])()
-    f_prch = F_prch_maker(0, 0, 0)()
+    f_prch = F_prch_maker(0, 1, 0)()
     
     integr = integrators()
+
+    print(q.height)
     runge_4 = integr.runge_4
 
     t_0 = time.time()

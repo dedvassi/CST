@@ -28,7 +28,7 @@ class integrators:
                         k4 = f_prch(q + dt * k3)
                         q_prom = q + dt * (k1 + 2 * k2 + 2 * k3 + k4) / 6
 
-                        print(q_prom.height)
+                        print(f"height справа: {q_prom.height}")
 
                         if np.abs(q_prom.height - H_k) <= epsilon:
                             q = q_prom
@@ -43,10 +43,14 @@ class integrators:
 
                         else:
                             if q_prom.height - H_k < 0:
-                                print(q.r)
-                                print(q.height)
                                 dt = ((q.height - H_k) / (q.height - q_prom.height)) * dt
+                                print("--------------------------------------------")
                                 print(f"New dt: {dt}")
+                                print(f"Time: {q[-1]}\n"
+                                      f"gr_coord: {q.r}\n"
+                                      f"gr_speed: {q.speed}\n"
+                                      f"Height: {q.height}")
+                                print("--------------------------------------------\n")
                             else:
                                 q = q_prom
                                 f_accel = np.array(f_prch(q)[3:6])
