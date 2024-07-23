@@ -5,7 +5,6 @@ from math_obj.matrix import Matrix
 from math_obj.f_prch import F_prch_maker
 from math_obj.integraters import integrators
 from working_with_files.config import Files_con
-# from math_obj.f_prch import F_prch_maker
 import time
 
 def main():
@@ -38,13 +37,10 @@ def main():
     f_prch = F_prch_maker(0, 1, 0)()
     
     integr = integrators()
-
-    print(q.height)
     runge_4 = integr.runge_4
 
     t_0 = time.time()
     q_values, f_accel_values = runge_4(f_prch, q)
-
     t_1 = time.time()
     print(t_1-t_0)
 

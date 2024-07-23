@@ -8,7 +8,15 @@ class Q_v_state:
     """
 
     class VectorState:
-        def __init__(self, outer_instance, init_value, sys, a_oze, b_oze, r_oze_sr, e2_oze, height_m):
+        def __init__(self,
+                     outer_instance,
+                     init_value,
+                     sys,
+                     a_oze,
+                     b_oze,
+                     r_oze_sr,
+                     e2_oze,
+                     height_m):
             self.__outer_instance = outer_instance
             self.__value = init_value
             self.__sys = sys
@@ -198,11 +206,17 @@ class Q_v_state:
                 self.__proj_and_height()
             return self.__height_above_ellipsoid
 
-    def __init__(self, matrix, q_non_sys, system_coord, a_oze=6378136.0, b_oze=6356751.361795686, r_oze_sr=6371110.0,
-                 e2_oze=0.0066943662, height_m=0):
+    def __init__(self,
+                 matrix,
+                 q_non_sys,
+                 system_coord,
+                 a_oze=6378136.0,
+                 b_oze=6356751.361795686,
+                 r_oze_sr=6371110.0,
+                 e2_oze=0.0066943662,
+                 height_m=0):
         """
         Инициализирует вектор состояния q в заданной системе координат.
-
         Args:
             matrix (Matrix): Экземпляр класса Matrix.
             q_non_sys (np.array): Вектор состояния q.
@@ -210,6 +224,8 @@ class Q_v_state:
             a_oze (float, optional): Параметр a эллипсоида. Defaults to 6378136.0.
             b_oze (float, optional): Параметр b эллипсоида. Defaults to 6356751.361795686.
             r_oze_sr (float, optional): Средний радиус Земли. Defaults to 6371110.0.
+            e2_oze (float, optional): Квадрат эксцентриситета ОЗЭ. Defaults to 0.0066943662.
+            height_m (int, optional): Тип метода расчета высоты. Defaults to 0 (по геодезии).
         """
         self.__matrix = matrix
         self.__value = q_non_sys
@@ -324,6 +340,7 @@ class Q_v_state:
         """
         Устанавливает новое значение вектора состояния q и пересчитывает его в указанной системе координат.
         Последняя по задумке передается из экземпляров класса VectorState, или при желании извне!
+        Метод по сути заново инициализирует вектор состояния!
 
         Args:
             new_value (np.array): Новое значение вектора состояния q.

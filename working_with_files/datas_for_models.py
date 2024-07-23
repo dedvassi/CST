@@ -32,3 +32,16 @@ def check_csv_file_TCxM(priority):
 
         return cache
 
+    if priority == 1:
+        # Пуь к файлу CSV
+        csv_file_path = '../data/immutable/TCxM.csv'
+        # Загрузка CSV файла в DataFrame
+        df = pd.read_csv(csv_file_path)
+
+        M_values = df['M'].values
+        Cx_values = df['Cxmax'].values
+
+        cache = {M: Cx for M, Cx in zip(M_values, Cx_values)}
+
+        return cache
+
