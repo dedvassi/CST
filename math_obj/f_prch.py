@@ -4,13 +4,24 @@ from working_with_files.datas_for_models import *
 class F_prch_maker():
     """Собирает функцию правой части в зависимости от установленных моделей"""
 
-    def __init__(self, grav_m: int, atmo_m: int, Cx_priority=0, omega_z=7.292115e-05, month = 1,  fM=398600441800000.0, alpha_cs=20.046796,
-                 s_mid_otd=13.2, m_otd=4000):
+    def __init__(self,
+                 grav_m: int,
+                 atmo_m: int,
+                 Cx_priority=0,
+                 omega_z=7.292115e-05,
+                 month=1,
+                 fM=398600441800000.0,
+                 alpha_cs=20.046796,
+                 R_g=287.05287,
+                 s_mid_otd=13.2,
+                 m_otd=4000):
         super().__init__()
         self.__start_param = np.concatenate((np.array([grav_m]), np.array([atmo_m])))
+        self.__Cx_priority = Cx_priority
         self.__omega_z = omega_z
         self.__fM = fM
         self.__alpha_cs = alpha_cs
+        self.__R_g = R_g
         self.__s_mid_otd = s_mid_otd
         self.__m_otd = m_otd
 
@@ -19,10 +30,10 @@ class F_prch_maker():
         self.__atmo_model = self.__models('atmo')
 
         # Кэшируем данные из таблиц по атмосфере
-        self.__atmo_cache = check_csv_file_atmo(self.__atmo_model, month)
+        self.__atmo_cache = check_csv_file_atmo(self.__atmo_model)
         self.__analysis_atmo = self.__analysis_atmo_cache()
 
-        self.__Cx_cache = check_csv_file_TCxM(Cx_priority)
+        self.__Cx_cache = check_csv_file_TCxM(self.__Cx_priority)
         self.__analysis_Cx = self.__analysis_Cx_cache()
 
         self.__f_prch = None
@@ -133,6 +144,53 @@ class F_prch_maker():
                         return ro, T
 
             return analysis_atmo
+
+        if self.__atmo_model == 2:
+            # Стандартная модель атмосферы
+            def stand_atmo(h):
+                h_values = sorted((self.__atmo_cache['stand_atmo']).keys())
+                h_min = h_values[0]
+                h_max = h_values[-1]
+
+                if h <= h_min:
+                    # Высота меньше минимальной из таблицы или совпадает с ней
+                    h = h_min
+                    ro, T = (self.__atmo_cache['stand_atmo'])[h]
+                    return ro, T
+                if h >= h_max:
+                    # Высота превышает максимальную из таблицы или совпадает с ней
+                    h = h_max
+                    ro, T = (self.__atmo_cache['stand_atmo'])[h]
+                    return ro, T
+                else:
+                    # Высота находится в пределах таблицы
+                    if h in h_values:
+                        # Высота находится в узле таблицы
+                        ro, T = (self.__atmo_cache['stand_atmo'])[h]
+                        return ro, T
+                    else:
+                        # Высота не находится в узле таблицы
+                        h_l = None
+                        h_r = None
+                        for h_s in h_values:
+                            if h_s < h:
+                                h_l = h_s
+                            if h_s > h and h_r is None:
+                                h_r = h_s
+                                break
+
+                        ro_l, T_l = (self.__atmo_cache['stand_atmo'])[h_l]
+                        ro_r, T_r = (self.__atmo_cache['stand_atmo'])[h_r]
+
+                        ro = self.__line_interpolation(h, h_l, h_r, ro_l, ro_r)
+                        T = self.__line_interpolation(h, h_l, h_r, T_l, T_r)
+
+                        return ro, T
+
+            def analysis_atmo(h):
+                ro_st, T_st = stand_atmo(h)
+
+            return stand_atmo
 
     def __analysis_Cx_cache(self):
         def analysis_Cx(v_norm, T):
