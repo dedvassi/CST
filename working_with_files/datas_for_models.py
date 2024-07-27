@@ -1,4 +1,5 @@
 import pandas as pd
+import threading
 def check_csv_file_atmo(model):
 
     if model == 0:
@@ -10,9 +11,9 @@ def check_csv_file_atmo(model):
         # Загрузка CSV файла в DataFrame
         df = pd.read_csv(csv_file_path)
 
-        h_values = df['h [м]'].values
-        ro_values = df['ro [кг/м3]'].values
-        T_values = df['T [градус K]'].values
+        h_values = df['h'].values
+        ro_values = df['ro'].values
+        T_values = df['T'].values
 
         cache = {h: (ro, T) for h, ro, T in zip(h_values, ro_values, T_values)}
 
@@ -35,9 +36,9 @@ def check_csv_file_atmo(model):
         df_tvetz = pd.read_csv(csv_file_path_tvetz)
         df_tvetm = pd.read_csv(csv_file_path_tvetm)
 
-        h_values = df_st_atm['h [м]'].values
-        ro_values = df_st_atm['ro [кг/м3]'].values
-        T_values = df_st_atm['T [градус K]'].values
+        h_values = df_st_atm['h'].values
+        ro_values = df_st_atm['ro'].values
+        T_values = df_st_atm['T'].values
 
         cache_st_atm = {h: (ro, T) for h, ro, T in zip(h_values, ro_values, T_values)}
 
@@ -72,6 +73,7 @@ def check_csv_file_atmo(model):
         n_values = df_tvetz['n'].values
 
         cache_vetz = {cwz: (k, l, m, n) for cwz, k, l, m, n in zip(cwz_values, k_values, l_values, m_values, n_values)}
+
 
         cwm_values = df_tvetm['Cwm'].values
         k_values = df_tvetm['k'].values
