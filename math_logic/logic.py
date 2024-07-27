@@ -1,11 +1,12 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from math_obj.q_vector import Q_v_state
 from math_obj.matrix import Matrix
 from math_obj.f_prch import F_prch_maker
 from math_obj.integraters import integrators
 from working_with_files.config import Files_con
-# from math_obj.f_prch import F_prch_maker
 import time
+import asyncio
 
 def main():
     # Инициализируем векторм состояний
@@ -32,29 +33,38 @@ def main():
     print(f'Матрица T_G {matrix.T_G}')
     print()
 
+
+
     # Экземпляр класса вектора состояния
     q = Q_v_state(matrix, np.array(start_param.init_data[:7]), start_param.init_data[7])()
-    f_prch = F_prch_maker(0, 1, 0)()
+    f_prch = F_prch_maker(0, 2, 0)()
     
     integr = integrators()
     runge_4 = integr.runge_4
 
-    t_0 = time.time()
-    q_values, f_accel_values = runge_4(f_prch, q)
-    t_1 = time.time()
-    print(t_1-t_0)
-    #print(f"{q}\n")
-    #print(f"{q.system}\n")
-    #print(f"{q.height}\n")
-    #print(f"{q.speed}\n")
-    #print(f"{q.proj_point}\n")
 
-    #print(f"{q.in_st.in_gr.__hash__}\n")
-    #print(f"{q.in_gr.__hash__}\n")
-    #print(f"{q.in_st.system}\n")
-    #print(f"{q.in_st.height}\n")
-    #print(f"{q.in_st.speed}\n")
-    #print(f"{q.in_st.proj_point}\n")
+    q_values, f_accel_values = runge_4(f_prch, q)
+
+
+    #
+    #
+    height = np.array([q.height for q in q_values])
+    t = np.array([q[-1] for q in q_values])
+
+    plt.plot(t, height)
+    plt.show()
+    # print(f"{q.__hash__}\n")
+    # print(f"{q.system}\n")
+    # print(f"{q.height}\n")
+    # print(f"{q.speed}\n")
+    # print(f"{q.proj_point}\n")
+    #
+    # print(f"{q.in_st.in_gr.__hash__}\n")
+    # print(f"{q.in_gr.__hash__}\n")
+    # print(f"{q.in_st.system}\n")
+    # print(f"{q.in_st.height}\n")
+    # print(f"{q.in_st.speed}\n")
+    # print(f"{q.in_st.proj_point}\n")
 
     #print(f"{q.in_ekv}\n")
     #print(f"{q.in_ekv.system}\n")
@@ -87,5 +97,7 @@ def main():
 
 
 if __name__ == '__main__':
+    t1 = time.time()
     main()
-    
+    t2 = time.time()
+    print(t2 - t1)
