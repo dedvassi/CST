@@ -139,10 +139,18 @@ class Q_v_state:
             """Вычисляет точку проекции на ОЗЭ и расстояние до нее."""
 
             if self.__height_m == 0:
+
                 def geodesy_height(q):
-                    r = np.array(q[:3])
-                    r_norm = np.linalg.norm(r)
-                    return None, r_norm - self.__a_oze / np.sqrt(1 + self.__e2_oze*((q[2] / r_norm) ** 2))
+                    ON = 0
+                    i = 0
+                    while i < 5:
+                        r = np.sqrt(q[0] ** 2 + q[1] ** 2 + (q[2] + ON) ** 2)
+                        snb = (q[2] + ON)/r
+                        N = self.__a_oze/np.sqrt(1 - self.__e2_oze * (snb ** 2))
+                        ON = self.__e2_oze * N * snb
+                        i += 1
+                    else:
+                        return None, r - N
 
                 if self.__sys != 3:
                     self.__grin_for_calculation_h = self.__outer_instance.q_gr
