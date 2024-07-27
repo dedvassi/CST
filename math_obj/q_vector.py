@@ -28,6 +28,7 @@ class Q_v_state:
 
             self.__grin_for_calculation_h = None
             self.__height_above_ellipsoid = None
+            self.__geodesy_coordinate = None
             self.__proj_point = None
 
             self.__depth = 0
@@ -135,7 +136,7 @@ class Q_v_state:
         def system(self):
             return self.__sys
 
-        def __proj_and_height(self):
+        def __height(self):
             """Вычисляет точку проекции на ОЗЭ и расстояние до нее."""
 
             if self.__height_m == 0:
@@ -150,69 +151,85 @@ class Q_v_state:
                         ON = self.__e2_oze * N * snb
                         i += 1
                     else:
-                        return None, r - N
+                        return r - N
 
                 if self.__sys != 3:
                     self.__grin_for_calculation_h = self.__outer_instance.q_gr
-                    self.__proj_point, self.__height_above_ellipsoid = geodesy_height(self.__grin_for_calculation_h)
+                    self.__height_above_ellipsoid = geodesy_height(self.__grin_for_calculation_h)
                 else:
-                    self.__proj_point, self.__height_above_ellipsoid = geodesy_height(self)
+                    self.__height_above_ellipsoid = geodesy_height(self)
 
-            if self.__height_m == 1:
-                def project_point_to_sphere(q):
+        def __geodesy_coord(self):
 
-                    r = np.array(q[:3])
-                    r_norm = np.linalg.norm(r)
-                    return (self.__r_oze_sr / r_norm) * r
+            def geodesy_coord(q, tol=1e-6):
+                X, Y, Z = q[:3]
+                r = np.sqrt(X ** 2 + Y ** 2)
 
-                # Функция для проекции точки на эллипсоид
-                def project_point_to_ellipsoid(q):
-                    x, y, z = q[:3]
+                if r == 0:
+                    B = (np.pi / 2) * np.sign(Z)
+                    L = 0
+                else:
+                    La = np.arcsin(Y / r)
 
-                    def distance_to_point(p):
-                        x_, y_, z_ = p
-                        return np.sqrt((x - x_) ** 2 + (y - y_) ** 2 + (z - z_) ** 2)
+                    if Y >= 0 and X >= 0:
+                        L = La
+                    elif Y >= 0 and X < 0:
+                        L = np.pi - La
+                    elif Y < 0 and X < 0:
+                        L = np.pi + La
+                    elif Y < 0 and X >= 0:
+                        L = 2 * np.pi - La
 
-                    def ellipsoid_constraint(p):
-                        x_, y_, z_ = p
-                        return (x_ ** 2 / self.__a_oze ** 2) + (y_ ** 2 / self.__a_oze ** 2) + (
-                                    z_ ** 2 / self.__b_oze ** 2) - 1
-
-                    def is_inside_ellipsoid(x, y, z):
-                        return (x ** 2 / self.__a_oze ** 2) + (y ** 2 / self.__a_oze ** 2) + (
-                                    z ** 2 / self.__b_oze ** 2) - 1 < 0
-
-                    x_initial = project_point_to_sphere(q)  # Начальное приближение по проекции на сферу
-                    constraint = {'type': 'eq', 'fun': ellipsoid_constraint}
-                    result = minimize(distance_to_point, x_initial, constraints=[constraint], method='SLSQP')
-
-                    if result.success:
-                        optimal_point = result.x
-                        distance = result.fun  # Вычисляем расстояние между q и найденной точкой на эллипсоиде
-                        if is_inside_ellipsoid(x, y, z):
-                            distance = -distance  # Отрицательное расстояние, если точка внутри эллипсоида
-                        return np.array(optimal_point), np.array(distance)
+                    if Z == 0:
+                        B = 0
                     else:
-                        raise ValueError("Оптимизация не удалась: " + result.message)
+                        ro = np.sqrt(X ** 2 + Y ** 2 + Z ** 2)
+                        c = np.arcsin(Z / ro)
+                        p = (self.__e2_oze * self.__a_oze) / (2 * ro)
 
-                if self.__sys != 3:
-                    self.__grin_for_calculation_h = self.__outer_instance.q_gr
-                    self.__proj_point, self.__height_above_ellipsoid = project_point_to_ellipsoid(
-                        self.__grin_for_calculation_h)
-                else:
-                    self.__proj_point, self.__height_above_ellipsoid = project_point_to_ellipsoid(self)
+                        s1 = 0
+                        while True:
+                            b = c + s1
+                            s2 = np.arcsin(p * np.sin(2 * b)) / np.sqrt(1 - self.__e2_oze * (np.sin(b) ** 2))
+                            if np.abs(s2 - s1) < tol:
+                                B = b
+                                break
 
-        @property
-        def proj_point(self):
-            if self.__proj_point is None:
-                self.__proj_and_height()
-            return self.__proj_point
+                            s1 = s2
+
+                        if np.abs(r / Z) < 1e-8:
+                            B -= r / Z
+                return np.array([B, L])
+
+            if self.__sys != 3:
+                self.__grin_for_calculation_h = self.__outer_instance.q_gr
+                self.__geodesy_coordinate = geodesy_coord(self.__grin_for_calculation_h)
+            else:
+                self.__geodesy_coordinate = geodesy_coord(self)
+
+        # @property
+        # def proj_point(self):
+        #     if self.__proj_point is None:
+        #         self.__proj_and_height()
+        #     return self.__proj_point
 
         @property
         def height(self):
             if self.__height_above_ellipsoid is None:
-                self.__proj_and_height()
+                self.__height()
             return self.__height_above_ellipsoid
+
+        @property
+        def geodesy_rad(self):
+            if self.__geodesy_coordinate is None:
+                self.__geodesy_coord()
+            return self.__geodesy_coordinate
+
+        @property
+        def geodesy_grad(self):
+            if self.__geodesy_coordinate is None:
+                self.__geodesy_coord()
+            return np.degrees(self.__geodesy_coordinate)
 
     def __init__(self,
                  matrix,
