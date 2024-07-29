@@ -1,5 +1,6 @@
 import numpy as np
 import multiprocessing
+import concurrent.futures
 from working_with_files.datas_for_models import *
 
 
@@ -86,15 +87,24 @@ class F_prch_maker:
             keys = ['tplot', 'tdavl', 'ttemp', 'tvetz', 'tvetm']
             self.__process = {}
 
-            for key in keys:
-                input_queue = multiprocessing.JoinableQueue()
-                output_queue = multiprocessing.Queue()
-                process = multiprocessing.Process(target=delta_param_worker, args=(input_queue,
-                                                                                           output_queue,
-                                                                                           self.__atmo_cache,
-                                                                                           self.__month), name=f'proc-{key}')
-                self.__process[key] = (process, input_queue, output_queue)
-                process.start()
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                futures = {}
+                for key in keys:
+                    futures[key] = executor.submit(self.__start_process, key)
+
+                for key, future in futures.items():
+                    process, input_queue, output_queue = future.result()
+                    self.__process[key] = (process, input_queue, output_queue)
+            print("Запущены дополнительные процессы для обработки данных")
+
+    def __start_process(self, key):
+        input_queue = multiprocessing.JoinableQueue()
+        output_queue = multiprocessing.Queue()
+        process = multiprocessing.Process(target=delta_param_worker,
+                                          args=(input_queue, output_queue, self.__atmo_cache, self.__month),
+                                          name=f'proc-{key}')
+        process.start()
+        return process, input_queue, output_queue
 
     def __call__(self):
         return self.f_prch
@@ -387,3 +397,6 @@ class F_prch_maker:
             raise ValueError("Ошибка инициализации модели атмосферы.\n"
                              "Функция не может быть сформирована.\n"
                              "Проверьте входные данные")
+
+if __name__ == "__main__":
+    pass

@@ -1,9 +1,7 @@
 import pandas as pd
 import os
-import threading
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-print(BASE_DIR)
 
 def check_csv_file_atmo(model):
 
@@ -147,4 +145,8 @@ def check_csv_file_TCxM(priority):
         return cache
 
 if __name__ == '__main__':
+    import time
+    t1 = time.perf_counter()
     check_csv_file_atmo(2)
+    t2 = time.perf_counter()
+    print(t2-t1)
