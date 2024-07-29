@@ -1,4 +1,5 @@
 import numpy as np
+import os
 import matplotlib.pyplot as plt
 from math_obj.q_vector import Q_v_state
 from math_obj.matrix import Matrix
@@ -9,10 +10,11 @@ import time
 import asyncio
 
 def main():
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     # Инициализируем векторм состояний
-    file_start_param = '../con_files/last_init_data.yaml' ##### СДЕЛАТЬ ЧТОБЫ ОН В БУДУЩЕМ СЮДА ПЕРЕДВАЛАСЯ ИЗ ПОЛЬЗОВАТЕЛЬСКОГО ИНТЕРФЕЙСА
-    file_iner_sys = '../con_files/start_iner_sys_data.yaml'
-    file_geodesia_const = '../con_files/geodez_const.yaml'
+    file_start_param = os.path.join(BASE_DIR, '../con_files', 'last_init_data.yaml') ##### СДЕЛАТЬ ЧТОБЫ ОН В БУДУЩЕМ СЮДА ПЕРЕДВАЛАСЯ ИЗ ПОЛЬЗОВАТЕЛЬСКОГО ИНТЕРФЕЙСА
+    file_iner_sys = os.path.join(BASE_DIR, '../con_files', 'start_iner_sys_data.yaml')
+    file_geodesia_const = os.path.join(BASE_DIR, '../con_files', 'geodez_const.yaml')
     
     # Экземпляры класса Files_con из пакета working_with_files для открытия yaml файлов
     sis = Files_con(file_iner_sys)                      # Работает с файлом содержащим информацию о старте
@@ -48,11 +50,11 @@ def main():
 
     #
     #
-    height = np.array([q.height for q in q_values])
-    t = np.array([q[-1] for q in q_values])
-
-    plt.plot(t, height)
-    plt.show()
+    # height = np.array([q.height for q in q_values])
+    # t = np.array([q[-1] for q in q_values])
+    #
+    # plt.plot(t, height)
+    # plt.show()
     # print(f"{q.__hash__}\n")
     # print(f"{q.system}\n")
     # print(f"{q.height}\n")
