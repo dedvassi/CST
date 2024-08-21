@@ -1,6 +1,7 @@
 import numpy as np
 import multiprocessing
 import concurrent.futures
+from functools import cache
 from working_with_files.datas_for_models import *
 
 
@@ -177,18 +178,21 @@ class F_prch_maker:
                     # Высота меньше минимальной из таблицы или совпадает с ней
                     h = h_min
                     ro, T, _, _, _ = self.__atmo_cache[h]
-                    return ro, T
+                    p = ro * self.__R_g * T
+                    return p, ro, T
                 if h >= h_max:
                     # Высота превышает максимальную из таблицы или совпадает с ней
                     h = h_max
                     ro, T, _, _, _ = self.__atmo_cache[h]
-                    return ro, T
+                    p = ro * self.__R_g * T
+                    return p, ro, T
                 else:
                     # Высота находится в пределах таблицы
                     if h in h_values:
                         # Высота находится в узле таблицы
                         ro, T, _, _, _ = self.__atmo_cache[h]
-                        return ro, T
+                        p = ro * self.__R_g * T
+                        return p, ro, T
                     else:
                         # Высота не находится в узле таблицы
                         h_l = None
@@ -205,8 +209,9 @@ class F_prch_maker:
 
                         ro = self.__line_interpolation(h, h_l, h_r, ro_l, ro_r)
                         T = self.__line_interpolation(h, h_l, h_r, T_l, T_r)
+                        p = ro * self.__R_g * T
 
-                        return ro, T
+                        return p, ro, T
 
             return analysis_atmo
 
@@ -278,38 +283,16 @@ class F_prch_maker:
 
                 dro = results['tplot']
                 dp = results['tdavl']
-                dt = results['ttemp']
+                Tc = results['ttemp']
                 Wz = results['tvetz']
                 Wm = results['tvetm']
+                print(f"h = {h}, dro = {dro}, dp = {dp}, dt = {Tc}, Wz = {Wz}, Wm = {Wm}")
 
-                # results = {}
-                # threads = []
-                #
-                # def worker(key):
-                #     results[key] = delta_param(key, q, H)
-                #
-                # for key in keys:
-                #     thread = threading.Thread(target=worker, args=(key,))
-                #     threads.append(thread)
-                #     thread.start()
-                #
-                # for thread in threads:
-                #     thread.join()
-                #
-                # dro = results['tplot']
-                # dp = results['tdavl']
-                # dt = results['ttemp']
-                # Wz = results['tvetz']
-                # Wm = results['tvetm']
+                p = p_st * (1 + dp / 100)
+                ro = ro_st * (1 + dro / 100)
+                T = Tc + 273.15
 
-                # dro = delta_param(keys[0], q, H)
-                # dp = delta_param(keys[1], q, H)
-                # dt = delta_param(keys[2], q, H)
-                # Wz = delta_param(keys[3], q, H)
-                # Wm = delta_param(keys[4], q, H)
-                print(f"{dro}, {dp}, {dt}, {Wz}, {Wm}")
-
-                return ro_st, T_st
+                return p, ro, T
 
             return analysis_atmo
 
@@ -362,6 +345,8 @@ class F_prch_maker:
     @property
     def f_prch(self):
         if self.__f_prch is None:
+
+            @cache
             def f_prch(q):
                 if q.system != 3:
                     # Переводим вектор на всякий случай в гринвичскую СК
@@ -377,7 +362,7 @@ class F_prch_maker:
                     f_accel += self.__grav_accel(r)
 
                 if self.__aero_d_resist is not None:
-                    ro, T = self.__analysis_atmo(q)
+                    p, ro, T = self.__analysis_atmo(q)
                     Cx = self.__analysis_Cx(v_norm, T)
                     f_accel += self.__aero_d_resist(ro, v_norm, v_ort, Cx, self.__s_mid_otd, self.__m_otd)
                 return np.concatenate((v, f_accel, [1]))
