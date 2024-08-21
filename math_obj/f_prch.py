@@ -1,7 +1,6 @@
 import numpy as np
 import multiprocessing
 import concurrent.futures
-from functools import cache
 from working_with_files.datas_for_models import *
 
 
@@ -49,6 +48,7 @@ class F_prch_maker:
     def __init__(self,
                  grav_m: int,
                  atmo_m: int,
+                 cacher,
                  Cx_priority=0,
                  omega_z=7.292115e-05,
                  month=1,
@@ -58,6 +58,7 @@ class F_prch_maker:
                  s_mid_otd=13.2,
                  m_otd=4000):
         self.__start_param = np.concatenate((np.array([grav_m]), np.array([atmo_m])))
+        self.__cacher = cacher
         self.__Cx_priority = Cx_priority
         self.__omega_z = omega_z
         self.__month = month
@@ -119,8 +120,8 @@ class F_prch_maker:
     def __r_component(self):
         """Компоненты радиусвектора с предыдущего шага"""
         def r_comp(q):
-            r = q.r
-            r_norm = np.linalg.norm(r)
+            r = q.r_vector
+            r_norm = q.r_norm
             r_ort = r/r_norm
             return r, r_norm, r_ort
         return r_comp
@@ -128,8 +129,8 @@ class F_prch_maker:
     def __speed_component(self):
         """Компоненты скорости с предыдущего шага"""
         def speed_comp(q):
-            v = q.speed
-            v_norm = np.linalg.norm(v)
+            v = q.speed_vector
+            v_norm = q.speed_norm
             v_ort = v/v_norm
             return v, v_norm, v_ort
         return speed_comp
@@ -149,7 +150,9 @@ class F_prch_maker:
         """Добавление аэродинамики"""
         if self.__atmo_model == 0:
             # Применяется модель без атмосферы
-            return None
+            def aero_d_resist(ro, v_norm, v_ort, Cx, S_midotd, m_otd):
+                return 0
+            return aero_d_resist
         else:
             def aero_d_resist(ro, v_norm, v_ort, Cx, S_midotd, m_otd):
                 dP = ro * (v_norm ** 2) / 2
@@ -161,9 +164,10 @@ class F_prch_maker:
     def __analysis_atmo_cache(self):
         if self.__atmo_model == 0:
             # Модель без атмосферы
-            def analysis_atmo(h):
-                ro, T = (0, 0)
-                return ro, T
+            def analysis_atmo(q):
+                p, ro, T = (0, 0, 0)
+                return p, ro, T
+            
             return analysis_atmo
 
         if self.__atmo_model == 1:
@@ -286,11 +290,12 @@ class F_prch_maker:
                 Tc = results['ttemp']
                 Wz = results['tvetz']
                 Wm = results['tvetm']
-                print(f"h = {h}, dro = {dro}, dp = {dp}, dt = {Tc}, Wz = {Wz}, Wm = {Wm}")
-
+                
                 p = p_st * (1 + dp / 100)
                 ro = ro_st * (1 + dro / 100)
                 T = Tc + 273.15
+                
+                print(f"{dro}, {dp}, {Tc}, {Wz}, {Wm}")
 
                 return p, ro, T
 
@@ -345,9 +350,7 @@ class F_prch_maker:
     @property
     def f_prch(self):
         if self.__f_prch is None:
-
-            @cache
-            def f_prch(q):
+            def f_prch(q, cached):
                 if q.system != 3:
                     # Переводим вектор на всякий случай в гринвичскую СК
                     q = q.in_gr
@@ -355,6 +358,8 @@ class F_prch_maker:
 
                 r, r_norm, r_ort = self.__r_comp(q)
                 v, v_norm, v_ort = self.__speed_comp(q)
+                print("cosY", np.dot(r_ort, v_ort))
+                clash_of_atmo = np.degrees(np.pi/2 - np.arccos(np.dot(r_ort, v_ort)))
                 W_c = (self.__omega_z ** 2) * r
                 W_k = -2 * np.cross(np.array([0, 0, self.__omega_z]), v)
                 f_accel = W_c + W_k
@@ -365,6 +370,15 @@ class F_prch_maker:
                     p, ro, T = self.__analysis_atmo(q)
                     Cx = self.__analysis_Cx(v_norm, T)
                     f_accel += self.__aero_d_resist(ro, v_norm, v_ort, Cx, self.__s_mid_otd, self.__m_otd)
+                if cached is True:
+                    print('ro ', ro)
+                    self.__cacher.append(accel=np.linalg.norm(f_accel),
+                                         ro = ro,
+                                         p = p,
+                                         T = T - 273.15,
+                                         clash = clash_of_atmo)
+                    
+                print(f'запись ускорений: {np.linalg.norm(f_accel)} длина {self.__cacher.len_accel_values}')
                 return np.concatenate((v, f_accel, [1]))
             self.__f_prch = f_prch
         return self.__f_prch

@@ -6,13 +6,15 @@ from math_obj.matrix import Matrix
 from math_obj.f_prch import F_prch_maker
 from math_obj.integraters import integrators
 from working_with_files.config import Files_con
+from math_logic.cacher import Cacher
 import time
 import asyncio
 
 def main():
+    print(np.array([]))
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     # Инициализируем векторм состояний
-    file_start_param = os.path.join(BASE_DIR, '../con_files', 'last_init_data.yaml') ##### СДЕЛАТЬ ЧТОБЫ ОН В БУДУЩЕМ СЮДА ПЕРЕДВАЛАСЯ ИЗ ПОЛЬЗОВАТЕЛЬСКОГО ИНТЕРФЕЙСА
+    file_start_param = os.path.join(BASE_DIR, '../data/changeable', 'system_init_coord.yaml') ##### СДЕЛАТЬ ЧТОБЫ ОН В БУДУЩЕМ СЮДА ПЕРЕДВАЛАСЯ ИЗ ПОЛЬЗОВАТЕЛЬСКОГО ИНТЕРФЕЙСА
     file_iner_sys = os.path.join(BASE_DIR, '../con_files', 'start_iner_sys_data.yaml')
     file_geodesia_const = os.path.join(BASE_DIR, '../con_files', 'geodez_const.yaml')
     
@@ -38,64 +40,101 @@ def main():
 
 
     # Экземпляр класса вектора состояния
+    cacher = Cacher()
+
     q = Q_v_state(matrix, np.array(start_param.init_data[:7]), start_param.init_data[7])()
-    f_prch = F_prch_maker(0, 2, 0)()
+    f_prch = F_prch_maker(0, 2, cacher)()
     
-    integr = integrators()
+    integr = integrators(cacher)
     runge_4 = integr.runge_4
-
-
-    q_values, f_accel_values = runge_4(f_prch, q)
-
-
+    
+    runge_4(f_prch, q)
+    speed_values = cacher.speed_values
+    p_values = cacher.p_values
+    ro_values = cacher.ro_values
+    T_values = cacher.T_values
+    clash_values = cacher.clash_values
+    accel_values = cacher.accel_values
+    height_values = cacher.height_values
+    t_values = cacher.t_values
+    
+    speed_x = cacher.speed_x_values
+    speed_y = cacher.speed_y_values
+    speed_z = cacher.speed_z_values
     #
     #
-    # height = np.array([q.height for q in q_values])
-    # t = np.array([q[-1] for q in q_values])
-    #
-    # plt.plot(t, height)
-    # plt.show()
-    # print(f"{q.__hash__}\n")
-    # print(f"{q.system}\n")
-    # print(f"{q.height}\n")
-    # print(f"{q.speed}\n")
-    # print(f"{q.proj_point}\n")
-    #
-    # print(f"{q.in_st.in_gr.__hash__}\n")
-    # print(f"{q.in_gr.__hash__}\n")
-    # print(f"{q.in_st.system}\n")
-    # print(f"{q.in_st.height}\n")
-    # print(f"{q.in_st.speed}\n")
-    # print(f"{q.in_st.proj_point}\n")
+#    height = np.array([q.height for q in q_values])
+#    speed = np.array([np.linalg.norm(q.speed) for q in q_values])
+#    t = np.array([q[-1] for q in q_values])
 
-    #print(f"{q.in_ekv}\n")
-    #print(f"{q.in_ekv.system}\n")
-    #print(f"{q.in_ekv.height}\n")
-    #print(f"{q.in_ekv.speed}\n")
-    #print(f"{q.in_ekv.proj_point}\n")
 
-    #print(f"{q.in_gr}\n")
-    #print(f"{q.in_gr.system}\n")
-    #print(f"{q.in_gr.height}\n")
-    #print(f"{q.in_gr.speed}\n")
-    #print(f"{q.in_gr.proj_point}\n")
-
-    #sum = q.in_st + q.in_gr
-    #print(sum)
-    #print(q.in_st)
-    #print(q.in_gr)
-    #print(q.in_gr.r)
-
-    #a = []
-    #for i in range(5):
-    #    q += i*q.value
-    #    a.append(q)
-    #for i in a:
-    #    print(f'{a.index(i)} ', i.__repr__)
-
-    #print(q.speed)
-    #print((a[4]).__repr__)
-
+    fig = plt.figure()
+    ax1 = fig.add_subplot(321)
+    ax1.plot(t_values, height_values)
+    ax1.set_title("h(t)")
+    ax1.set_xlabel("t, с")
+    ax1.set_ylabel("h, м")
+    
+    ax2 = fig.add_subplot(322)
+    ax2.plot(speed_values, height_values)
+    ax2.set_title("V(t)")
+    ax2.set_xlabel("t, с")
+    ax2.set_ylabel("V, м/с")
+    
+    ax3 = fig.add_subplot(323)
+    ax3.plot(accel_values/9.81, height_values)
+    ax3.set_title("accel(t)")
+    ax3.set_xlabel("t, с")
+    ax3.set_ylabel("a, м/с^2")
+    
+    ax4 = fig.add_subplot(324)
+    ax4.plot(np.abs(clash_values), height_values/1000)
+    ax4.set_title("clash(t)")
+    ax4.set_xlabel("h, КМ")
+    ax4.set_ylabel("угол, град")
+    
+    ax5 = fig.add_subplot(325)
+    ax5.plot(height_values, ro_values)
+    ax5.set_title("ro(t)")
+    ax5.set_xlabel("t, с")
+    ax5.set_ylabel("ro, кг/м^3")
+    
+    ax6 = fig.add_subplot(326)
+    ax6.plot(T_values, height_values)
+    ax6.set_title("T(t)")
+    ax6.set_xlabel("t, с")
+    ax6.set_ylabel("T, К")
+    
+    fig1 = plt.figure()
+    ax11 = fig1.add_subplot(311)
+    ax11.plot(t_values, speed_x)
+    ax11.set_title("Vx(t)")
+    ax11.set_xlabel("t, с")
+    ax11.set_ylabel("Vx, м/с")
+    
+    ax12 = fig1.add_subplot(312)
+    ax12.plot(t_values, speed_y)
+    ax12.set_title("Vy(t)")
+    ax12.set_xlabel("t, с")
+    ax12.set_ylabel("Vy, м/с")
+    
+    ax13 = fig1.add_subplot(313)
+    ax13.plot(t_values, speed_z)
+    ax13.set_title("Vz(t)")
+    ax13.set_xlabel("t, с")
+    ax13.set_ylabel("Vz, м/с")
+    
+    fig2 = plt.figure()
+    ax111 = fig2.add_subplot(111)
+    ax111.plot(p_values, height_values)
+    ax111.set_title("P(h)")
+    ax111.set_xlabel("P, Па")
+    ax111.set_ylabel("h, м")
+    
+    
+    
+#    plt.plot(t, speed)
+    plt.show()
 
 
 if __name__ == '__main__':

@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="b620a1c8-a3c3-47e0-8404-2670e089b8f4" name="Changes" comment="f_prch upd">
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/CST.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/CST.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/math_obj/f_prch.py" beforeDir="false" afterPath="$PROJECT_DIR$/math_obj/f_prch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/math_obj/integraters.py" beforeDir="false" afterPath="$PROJECT_DIR$/math_obj/integraters.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/math_obj/q_vector.py" beforeDir="false" afterPath="$PROJECT_DIR$/math_obj/q_vector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/working_with_files/methods_for_created_files.py" beforeDir="false" afterPath="$PROJECT_DIR$/working_with_files/methods_for_created_files.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="2jqvusd6ziowyCdMOwHHvdAVxcr" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;global__atmo&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\dedvassi\Desktop\CST\math_obj" />
+      <recent name="C:\Users\dedvassi\Desktop\CST\math_obj\cpp_lib" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.CST">
+    <configuration name="CST" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CST" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/CST.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="datas_for_models" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CST" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/working_with_files" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/working_with_files/datas_for_models.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="logic" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CST" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/math_logic" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/math_logic/logic.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.CST" />
+        <item itemvalue="Python.datas_for_models" />
+        <item itemvalue="Python.logic" />
+        <item itemvalue="Python.logic" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task id="LOCAL-00001" summary="Добавлена функциональность по определению геодезических координат B и L">
+      <option name="closed" value="true" />
+      <created>1722113075113</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1722113075113</updated>
+    </task>
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="b620a1c8-a3c3-47e0-8404-2670e089b8f4" name="Changes" comment="Добавлена функциональность по определению геодезических координат B и L" />
+      <created>1722127650666</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1722127650666</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Изменения в datas_for_models.py">
+      <option name="closed" value="true" />
+      <created>1722289062621</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1722289062621</updated>
+    </task>
+    <task id="LOCAL-00003" summary="изменения в f_prch.py&#10;&#10;Добавлена логика мультипроцессинга для обработки таблиц глобальной атмосферы, а также шаблон для их анализа">
+      <option name="closed" value="true" />
+      <created>1722289441560</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1722289441560</updated>
+    </task>
+    <task id="LOCAL-00004" summary="...">
+      <option name="closed" value="true" />
+      <created>1722289494063</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1722289494063</updated>
+    </task>
+    <task id="LOCAL-00005" summary="...">
+      <option name="closed" value="true" />
+      <created>1722289525267</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1722289525267</updated>
+    </task>
+    <task id="LOCAL-00006" summary="нули">
+      <option name="closed" value="true" />
+      <created>1722289566984</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1722289566984</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Слегка ускорено создание доп процессов для вычислений">
+      <option name="closed" value="true" />
+      <created>1722295052501</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1722295052501</updated>
+    </task>
+    <task id="LOCAL-00008" summary="f_prch upd">
+      <option name="closed" value="true" />
+      <created>1724262050241</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1724262050241</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="add new data" />
+    <MESSAGE value="Добавлена функциональность по определению геодезических координат B и L" />
+    <MESSAGE value="Изменения в datas_for_models.py" />
+    <MESSAGE value="изменения в f_prch.py&#10;&#10;Добавлена логика мультипроцессинга для обработки таблиц глобальной атмосферы, а также шаблон для их анализа" />
+    <MESSAGE value="..." />
+    <MESSAGE value="нули" />
+    <MESSAGE value="Слегка ускорено создание доп процессов для вычислений" />
+    <MESSAGE value="f_prch upd" />
+    <option name="LAST_COMMIT_MESSAGE" value="f_prch upd" />
+  </component>
+</project>

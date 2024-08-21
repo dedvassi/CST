@@ -40,7 +40,7 @@ class Q_v_state:
             if self.__depth > 2:  # Ограничиваем глубину до 2
                 return "..."
             self.__depth += 1
-            result = f"VectorState(value={self.__value}, height={self.height}, proj_point={self.proj_point})"
+            result = f"VectorState(value={self.__value}, height={self.height})"
             self.__depth -= 1
             return result
 
@@ -111,15 +111,32 @@ class Q_v_state:
             return self.__outer_instance.q_gr
 
         @property
-        def r(self):
+        def r_vector(self):
             """
             Возвращает текущий вектор скорости.
             """
             return np.array(self.__value[:3])
+        @property
+        def r_norm(self):
+            """
+            Возвращает текущий вектор скорости.
+            """
+            return np.linalg.norm(np.array(self.__value[:3]))
+        
+        @property
+        def time(self):
+            """
+            Возвращает текущее время.
+            """
+            return self.__value[-1]
 
         @property
-        def speed(self):
+        def speed_vector(self):
             return np.array(self.__value[3:6])
+        
+        @property
+        def speed_norm(self):
+            return np.linalg.norm(np.array(self.__value[3:6]))
 
         @property
         def value(self):
