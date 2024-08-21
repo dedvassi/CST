@@ -4,14 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b620a1c8-a3c3-47e0-8404-2670e089b8f4" name="Changes" comment="f_prch upd">
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/CST.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/CST.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/math_obj/f_prch.py" beforeDir="false" afterPath="$PROJECT_DIR$/math_obj/f_prch.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/math_obj/integraters.py" beforeDir="false" afterPath="$PROJECT_DIR$/math_obj/integraters.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/math_obj/q_vector.py" beforeDir="false" afterPath="$PROJECT_DIR$/math_obj/q_vector.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/working_with_files/methods_for_created_files.py" beforeDir="false" afterPath="$PROJECT_DIR$/working_with_files/methods_for_created_files.py" afterDir="false" />
+    <list default="true" id="b620a1c8-a3c3-47e0-8404-2670e089b8f4" name="Changes" comment="добавлен так называемый кэшер">
+      <change beforePath="$PROJECT_DIR$/data/changeable/system_init_coord.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/data/changeable/system_init_coord.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -197,7 +191,23 @@
       <option name="project" value="LOCAL" />
       <updated>1724262050241</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="upd in work, много чего сложно сказать">
+      <option name="closed" value="true" />
+      <created>1724262456010</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1724262456010</updated>
+    </task>
+    <task id="LOCAL-00010" summary="добавлен так называемый кэшер">
+      <option name="closed" value="true" />
+      <created>1724262538204</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1724262538204</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -220,6 +230,8 @@
     <MESSAGE value="нули" />
     <MESSAGE value="Слегка ускорено создание доп процессов для вычислений" />
     <MESSAGE value="f_prch upd" />
-    <option name="LAST_COMMIT_MESSAGE" value="f_prch upd" />
+    <MESSAGE value="upd in work, много чего сложно сказать" />
+    <MESSAGE value="добавлен так называемый кэшер" />
+    <option name="LAST_COMMIT_MESSAGE" value="добавлен так называемый кэшер" />
   </component>
 </project>
