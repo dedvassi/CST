@@ -30,6 +30,11 @@ class Q_v_state:
             self.__height_above_ellipsoid = None
             self.__geodesy_coordinate = None
             self.__proj_point = None
+            self.__transfer_to_the_sphere = None
+            self.__normal_vector_coordinate = None
+            self.__nord_vector_coordinate = None
+            self.__east_vector_coordinate = None
+
 
             self.__depth = 0
 
@@ -178,7 +183,7 @@ class Q_v_state:
 
         def __geodesy_coord(self):
 
-            def geodesy_coord(q, tol=1e-6):
+            def geodesy_coord(q, tol=1e-12):
                 X, Y, Z = q[:3]
                 r = np.sqrt(X ** 2 + Y ** 2)
 
@@ -186,16 +191,16 @@ class Q_v_state:
                     B = (np.pi / 2) * np.sign(Z)
                     L = 0
                 else:
-                    La = np.arcsin(Y / r)
+                    La = np.abs(np.arcsin(Y / r))
 
                     if Y >= 0 and X >= 0:
                         L = La
                     elif Y >= 0 and X < 0:
                         L = np.pi - La
-                    elif Y < 0 and X < 0:
-                        L = np.pi + La
                     elif Y < 0 and X >= 0:
-                        L = 2 * np.pi - La
+                        L = - La
+                    elif Y < 0 and X < 0:
+                        L = La - np.pi
 
                     if Z == 0:
                         B = 0
@@ -214,7 +219,7 @@ class Q_v_state:
 
                             s1 = s2
 
-                        if np.abs(r / Z) < 1e-8:
+                        if np.abs(r / Z) < 1e-12:
                             B -= r / Z
                 return np.array([B, L])
 
@@ -224,11 +229,93 @@ class Q_v_state:
             else:
                 self.__geodesy_coordinate = geodesy_coord(self)
 
-        # @property
-        # def proj_point(self):
-        #     if self.__proj_point is None:
-        #         self.__proj_and_height()
-        #     return self.__proj_point
+        def __calc_ON(self, B):
+            N = self.__a_oze / np.sqrt(1 - self.__e2_oze * (np.sin(B) ** 2))
+            return self.__e2_oze * N * np.sin(B)
+        def __proj_point_coord(self):
+            ON = self.__calc_ON(self.geodesy_rad[0])
+            ON_vector = np.array([0, 0, -ON])
+
+            NP = self.r_vector - ON_vector
+            NP_norm = np.linalg.norm(NP)
+            NP_ort = NP/NP_norm
+            self.__proj_point = (NP_norm - self.height) * NP_ort + ON_vector
+
+        def __normal_coord(self):
+            x, y, z = self.proj_point[:3]
+            n = np.array([2 * x / (self.__a_oze ** 2), 2 * y / (self.__a_oze ** 2), 2 * z / (self.__b_oze ** 2)])
+            self.__normal_vector_coordinate = n / np.linalg.norm(n)
+
+        def __nord_coord(self):
+            if 0 < self.geodesy_rad[0] < np.pi/2 or - np.pi/2 < self.geodesy_rad[0] < 0:
+                r_1 = self.r_vector/self.r_norm
+                r_2 = np.array([0, 0, 1])
+
+                n_1 = np.cross(r_1, r_2)
+                n_2 = self.normal
+                self.__nord_vector_coordinate = np.cross(n_1, n_2)
+
+            elif self.geodesy_rad[0] == 0:
+                self.__nord_vector_coordinate = np.array([0, 0, 1])
+
+        def __east_coord(self):
+            self.__east_vector_coordinate = np.cross(self.nord, self.normal)
+
+        def __trans_to_sphere(self):
+
+            def surface_sp(r, n, k):
+                r_new = r + k * n
+                x, y, z = r_new[:3]
+                return (x ** 2 + y ** 2 + z ** 2) / (self.__a_oze ** 2)
+
+            def find_k(func_l, r, n, const=1, a=-10, b=30000, tol=1e-14 ):
+                while True:
+                    k_mid = (a + b) / 2
+                    l_mid = func_l(r, n, k_mid)
+                    if abs(l_mid - const) < tol:
+                        return k_mid
+
+                    if l_mid > const:
+                        b = k_mid
+                    else:
+                        a = k_mid
+
+                return (a + b) / 2
+
+            def transfer():
+                k = find_k(surface_sp, self.r_vector, self.normal)
+                return self.r_vector + k * self.normal
+
+            self.__transfer_to_the_sphere = transfer()
+        @property
+        def proj_point(self):
+            if self.__proj_point is None:
+                self.__proj_point_coord()
+            return self.__proj_point
+
+        @property
+        def trans_to_sp(self):
+            if self.__transfer_to_the_sphere is None:
+                self.__trans_to_sphere()
+            return self.__transfer_to_the_sphere
+
+        @property
+        def normal(self):
+            if self.__normal_vector_coordinate is None:
+                self.__normal_coord()
+            return self.__normal_vector_coordinate
+
+        @property
+        def nord(self):
+            if self.__nord_vector_coordinate is None:
+                self.__nord_coord()
+            return self.__nord_vector_coordinate
+
+        @property
+        def east(self):
+            if self.__east_vector_coordinate is None:
+                self.__east_coord()
+            return self.__east_vector_coordinate
 
         @property
         def height(self):

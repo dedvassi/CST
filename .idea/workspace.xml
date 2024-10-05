@@ -4,13 +4,26 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b620a1c8-a3c3-47e0-8404-2670e089b8f4" name="Changes" comment="добавлен так называемый кэшер">
-      <change beforePath="$PROJECT_DIR$/data/changeable/system_init_coord.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/data/changeable/system_init_coord.yaml" afterDir="false" />
+    <list default="true" id="b620a1c8-a3c3-47e0-8404-2670e089b8f4" name="Changes" comment="upd cacher.py&#10;added function write to exel">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/math_logic/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/math_logic/.idea/.name" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/math_logic/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/math_logic/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/math_logic/logic.py" beforeDir="false" afterPath="$PROJECT_DIR$/math_logic/logic.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/math_obj/integraters.py" beforeDir="false" afterPath="$PROJECT_DIR$/math_obj/integraters.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/math_obj/q_vector.py" beforeDir="false" afterPath="$PROJECT_DIR$/math_obj/q_vector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/working_with_files/datas_for_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/working_with_files/datas_for_models.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
@@ -35,17 +48,19 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;global__atmo&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;geodesy__line&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\dedvassi\Desktop\CST\math_obj\geodesy" />
+      <recent name="C:\Users\dedvassi\Desktop\CST\math_logic" />
       <recent name="C:\Users\dedvassi\Desktop\CST\math_obj" />
       <recent name="C:\Users\dedvassi\Desktop\CST\math_obj\cpp_lib" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.CST">
+  <component name="RunManager" selected="Python.geodesy_line">
     <configuration name="CST" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="CST" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -67,7 +82,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="datas_for_models" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="geodesy_line" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="CST" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -75,11 +90,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/working_with_files" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/math_obj/geodesy" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/working_with_files/datas_for_models.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/math_obj/geodesy/geodesy_line.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -88,7 +103,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="logic" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="test geo 2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="CST" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -100,7 +115,49 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/math_logic/logic.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/math_logic/test geo 2.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="test geodesy" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CST" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/math_logic" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/math_logic/test geodesy.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ttt" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CST" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ttt.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -111,10 +168,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.geodesy_line" />
+        <item itemvalue="Python.test geodesy" />
+        <item itemvalue="Python.ttt" />
         <item itemvalue="Python.CST" />
-        <item itemvalue="Python.datas_for_models" />
-        <item itemvalue="Python.logic" />
-        <item itemvalue="Python.logic" />
+        <item itemvalue="Python.test geo 2" />
       </list>
     </recent_temporary>
   </component>
@@ -207,7 +265,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724262538204</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="upd cacher.py&#10;added function write to exel">
+      <option name="closed" value="true" />
+      <created>1728107777412</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1728107777412</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -232,6 +298,8 @@
     <MESSAGE value="f_prch upd" />
     <MESSAGE value="upd in work, много чего сложно сказать" />
     <MESSAGE value="добавлен так называемый кэшер" />
-    <option name="LAST_COMMIT_MESSAGE" value="добавлен так называемый кэшер" />
+    <MESSAGE value="requirements.txt upd" />
+    <MESSAGE value="upd cacher.py&#10;added function write to exel" />
+    <option name="LAST_COMMIT_MESSAGE" value="upd cacher.py&#10;added function write to exel" />
   </component>
 </project>

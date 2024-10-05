@@ -24,7 +24,7 @@ def check_csv_file_atmo(model):
                                                                             numbers_st_atm, zero_d_1, zero_d_2)}
                                                                             
 
-        print(cache)
+        # print(cache)
         return cache
 
     if model == 2:
