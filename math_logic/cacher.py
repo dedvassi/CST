@@ -5,6 +5,8 @@ Created on Thu Aug 15 09:35:15 2024
 @author: BurdukovID
 """
 import numpy as np
+import os
+import openpyxl as opxl
 
 
 class Cacher:
@@ -79,8 +81,11 @@ class Cacher:
             self.__clash_of_atmo.append(clash)
     
         self.__invalidata_cached_properties()
-        
-        
+
+    @property
+    def q_values(self):
+        return self.__q_values
+
     @property
     def accel_values(self):
         return np.array(self.__accel_values)
@@ -141,4 +146,45 @@ class Cacher:
         if self.__height_values is None:
             self.__height_values = np.array([q.height for q in self.__q_values])
         return self.__height_values
+
+
+    def __write_row_to_excel(self, file_path, row_data):
+        # Проверяем, существует ли файл
+        if os.path.exists(file_path):
+            # Открываем существующий файл
+            workbook = opxl.load_workbook(file_path)
+            sheet = workbook.active
+        else:
+            # Создаем новый файл
+            workbook = opxl.Workbook()
+            sheet = workbook.active
+
+            # Задаем шапку столбцов, если файл новый
+            headers = ['x', 'y', 'z', 'vx', 'vy', 'vz', 't', 'r', 'v', 'h', 'B',  'L', 'a', 'ro', 'T', 'gamma']
+            sheet.append(headers)
+
+        # Добавляем новую строку данных
+        sheet.append(row_data)
+
+        # Сохраняем файл
+        workbook.save(file_path)
+
+    def create_exel(self, file_path):
+
+        for i in range(len(self.q_values)):
+            x, y, z, vx, vy, vz, t = self.q_values[i][:7]
+            r = self.q_values[i].r_norm
+            v = self.q_values[i].speed_norm
+            h = self.q_values[i].height
+            B, L = self.q_values[i].geodesy_grad
+            a = self.accel_values[i]
+            ro = self.ro_values[i]
+            T = self.T_values[i]
+            gamma = self.clash_values[i]
+
+            row_data = [x, y, z, vx, vy, vz, t, r, v, h, B. L, a, ro, T, gamma]
+
+            self.__write_row_to_excel(file_path, row_data)
+
+
     
